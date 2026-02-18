@@ -1,0 +1,44 @@
+node_modules/
+.nuxt/
+.output/
+.DS_Store
+.env
+.env.local
+.env.*.local
+.idea/
+.vscode/
+yarn-error.log
+/.pnp.cjs
+.yarn/cache/
+.yarn/unplugged/
+.yarn/build-state/
+.yarn/install-state.gz
+dist/
+public/.DS_Store
+
+# Local system files
+Thumbs.db
+# Nuxt dev/build outputs
+.output
+.data
+.nuxt
+.nitro
+.cache
+dist
+
+# Node dependencies
+node_modules
+
+# Logs
+logs
+*.log
+
+# Misc
+.DS_Store
+.fleet
+.idea
+
+# Local env files
+.env
+.env.*
+!.env.example

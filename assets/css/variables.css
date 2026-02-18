@@ -1,0 +1,14 @@
+:root {
+  /* Primary palette for the eco / construction sorting site */
+  --color-green: #2f7a3e; /* main green */
+  --color-green-dark: #1f5a2b;
+  --color-brown: #6b4f32; /* main brown */
+  --color-brown-dark: #543a27;
+
+  --navbar-height: 64px;
+  --text-on-primary: #ffffff;
+}
+
+/* Small utility to ensure body background contrasts with navbar */
+html, body { height: 100%; }
+body { margin: 0; background: #f6f7f3; color: #222; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; }
