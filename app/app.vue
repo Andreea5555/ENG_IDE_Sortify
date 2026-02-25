@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="app-wrapper">
     <Navbar @show-signup="showSignUp = true">
       <template #logo>
         <!-- Use the user-provided Logo.png from assets (imported as `logo`) -->
@@ -18,13 +18,13 @@
       </div>
     </transition>
     <NuxtRouteAnnouncer />
-    <!-- Removed NuxtWelcome (default Nuxt splash) because it imports /logo.png which caused a Vite import error.
-      Replace this with your real landing content or re-add NuxtWelcome after adding /logo.png to /public. -->
+    <AppFooter />
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
+import AppFooter from "../components/Footer.vue"
 import Navbar from '../components/Navbar.vue'
 import logo from '../assets/images/Logo.png'
 import SignUpPopup from '../components/SignUpPopup.vue'
@@ -55,6 +55,11 @@ function onShowSignUp() {
 </script>
 
 <style scoped>
+.app-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
 .congrats-popup {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
