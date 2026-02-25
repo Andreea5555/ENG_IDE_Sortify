@@ -18,13 +18,14 @@
     </nav>
 
     <div class="navbar__cta">
-      <button class="btn">Sign Up</button>
+      <button class="btn" @click="$emit('show-signup')">Sign Up</button>
     </div>
   </header>
 </template>
 
 <script setup lang="ts">
 // Navbar is simple and uses a named slot for the logo. No props required yet.
+defineEmits(['show-signup'])
 </script>
 
 <style scoped>
