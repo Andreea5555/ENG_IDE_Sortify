@@ -1,13 +1,18 @@
 <template>
   <div class="login-popup" v-if="show">
     <div class="login-popup__overlay" @click="closePopup"></div>
-    <div class="login-popup__content">
+    <div class="login-popup__content login-popup__content--column">
+      <img src="/Logo.png" alt="Sortify Logo" class="login-popup__logo" />
       <h2>Login</h2>
       <form @submit.prevent="submitForm">
         <input v-model="email" type="email" placeholder="Email (Gmail only)" required />
         <input v-model="password" type="password" placeholder="Password" required />
         <button class="login-popup__submit" type="submit">Login</button>
       </form>
+      <div class="login-popup__signup-row">
+        <span>Don't have an account?</span>
+        <button class="login-popup__signup-btn" type="button" @click="onSignUp">Sign Up</button>
+      </div>
       <button class="login-popup__close" @click="closePopup">&times;</button>
     </div>
   </div>
@@ -17,7 +22,7 @@
 import { ref, defineProps, defineEmits } from 'vue'
 
 const props = defineProps<{ show: boolean }>()
-const emit = defineEmits(['close'])
+const emit = defineEmits(['close', 'show-signup'])
 
 const email = ref('')
 const password = ref('')
@@ -29,6 +34,10 @@ function closePopup() {
 function submitForm() {
   // Handle login logic here
   closePopup()
+}
+
+function onSignUp() {
+  emit('show-signup')
 }
 </script>
 
@@ -57,6 +66,45 @@ function submitForm() {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+}
+.login-popup__content--column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+.login-popup__logo {
+  width: 60px;
+  height: 60px;
+  min-width: 60px;
+  min-height: 60px;
+  object-fit: contain;
+  border-radius: 12px;
+  box-shadow: none;
+  background: transparent;
+  margin: 0 0 0.2rem 0;
+}
+.login-popup__signup-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+.login-popup__signup-btn {
+  background: none;
+  border: none;
+  color: var(--color-green, #4caf50);
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: 1rem;
+  padding: 0;
+  border-radius: 6px;
+  transition: color 0.2s;
+}
+.login-popup__signup-btn:hover {
+  color: var(--color-brown, #795548);
 }
 .login-popup__content h2 {
   margin: 0 0 1rem 0;

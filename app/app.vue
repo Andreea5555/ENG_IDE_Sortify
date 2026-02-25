@@ -7,7 +7,7 @@
       </template>
     </Navbar>
     <SignUpPopup :show="showSignUp" @close="onSignUpClose" @signed-up="showCongrats = true" @show-login="onShowLogin" />
-    <LoginPopup :show="showLogin" @close="onLoginClose" />
+    <LoginPopup :show="showLogin" @close="onLoginClose" @show-signup="onShowSignUp" />
     <transition name="congrats-fade">
       <div v-if="showCongrats" class="congrats-popup">
         <div class="congrats-content">
@@ -47,6 +47,10 @@ function onShowLogin() {
 }
 function onLoginClose() {
   showLogin.value = false
+}
+function onShowSignUp() {
+  showLogin.value = false
+  showSignUp.value = true
 }
 </script>
 
