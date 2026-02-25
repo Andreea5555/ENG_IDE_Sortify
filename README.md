@@ -1,2 +1,2 @@
 # ENG_IDE_Sortify
-Innovation, Design and Entreprenourship project 
+Innovation, Design and Entrepreneurship project 
