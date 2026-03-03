@@ -17,6 +17,9 @@
         </div>
       </div>
     </transition>
+    <main class="app-main">
+      <NuxtPage />
+    </main>
     <NuxtRouteAnnouncer />
     <AppFooter />
   </div>
@@ -59,6 +62,10 @@ function onShowSignUp() {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+}
+.app-main {
+  flex: 1;
+  width: 100%;
 }
 .congrats-popup {
   position: fixed;
