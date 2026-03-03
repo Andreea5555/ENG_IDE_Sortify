@@ -5,6 +5,12 @@
       <img src="/Logo.png" alt="Sortify Logo" class="signup-popup__logo" />
       <div class="signup-popup__form-wrapper">
         <h2>Sign Up</h2>
+        <p class="signup-popup__tagline">Rehome surplus materials with a trusted reuse collective.</p>
+        <div class="signup-popup__perks" role="list">
+          <span role="listitem">Verified buyer network</span>
+          <span role="listitem">Project-grade reporting</span>
+          <span role="listitem">Priority support</span>
+        </div>
         <form @submit.prevent="submitForm">
           <input v-model="firstName" type="text" placeholder="First Name" required />
           <input v-model="lastName" type="text" placeholder="Last Name" required />
@@ -32,6 +38,7 @@
           <span>Already have an account?</span>
           <button class="signup-popup__login-btn" type="button" @click="onLogin">Login</button>
         </div>
+        <p class="signup-popup__microcopy">We review every new profile to keep transactions human and safe.</p>
       </div>
       <button class="signup-popup__close" @click="closePopup">&times;</button>
     </div>
@@ -125,16 +132,19 @@ function onLogin() {
 }
 .signup-popup__content {
   position: relative;
-  background: linear-gradient(135deg, var(--color-green, #4caf50) 0%, var(--color-brown, #795548) 100%);
-  padding: 2rem 2.5rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 32px rgba(0,0,0,0.18);
+  background: radial-gradient(circle at top, rgba(255,255,255,0.15), transparent 45%),
+    linear-gradient(145deg, #1f2a1f, #4d6b45 60%, #6b4f32);
+  padding: 2rem 2.25rem;
+  border-radius: 20px;
+  box-shadow: 0 30px 80px rgba(10, 33, 23, 0.5);
+  width: min(420px, calc(100vw - 32px));
   min-width: 320px;
   z-index: 1;
   display: flex;
   flex-direction: column;
   gap: 1rem;
   color: #fff;
+  border: 1px solid rgba(255,255,255,0.12);
 }
 .signup-popup__content--column {
   flex-direction: column;
@@ -157,8 +167,8 @@ function onLogin() {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
   box-sizing: border-box;
 }
 .signup-popup__form-wrapper h2 {
@@ -172,6 +182,27 @@ function onLogin() {
   font-weight: 700;
   color: #fff;
 }
+.signup-popup__tagline {
+  margin: 0 0 1rem;
+  text-align: center;
+  color: rgba(255,255,255,0.78);
+  font-size: 0.95rem;
+}
+.signup-popup__perks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+}
+.signup-popup__perks span {
+  padding: 0.35rem 0.9rem;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.2);
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+}
 .signup-popup__form-wrapper input[type="text"],
 .signup-popup__form-wrapper input[type="email"],
 .signup-popup__form-wrapper input[type="password"] {
@@ -179,11 +210,19 @@ function onLogin() {
   box-sizing: border-box;
   padding: 0.5rem 0.75rem;
   margin-bottom: 0.75rem;
-  border: 1px solid var(--color-brown, #795548);
-  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 12px;
   font-size: 1rem;
-  background: var(--color-cream);
-  color: #333;
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+  backdrop-filter: blur(6px);
+}
+.signup-popup__form-wrapper input::placeholder {
+  color: rgba(255,255,255,0.7);
+}
+.signup-popup__form-wrapper input:focus {
+  outline: 2px solid rgba(253, 247, 239, 0.6);
+  background: rgba(255,255,255,0.18);
 }
 .signup-popup__error {
   color: #ffdddd;
@@ -219,19 +258,20 @@ function onLogin() {
 .signup-popup__submit {
   width: 100%;
   padding: 0.6rem 0;
-  background: var(--color-green, #4caf50);
-  color: #fff;
+  background: linear-gradient(120deg, #a1cf6f, #2f7a3e);
+  color: #0f1b0f;
   border: none;
-  border-radius: 6px;
-  font-size: 1.1rem;
-  font-weight: 600;
+  border-radius: 999px;
+  font-size: 1.05rem;
+  font-weight: 700;
   cursor: pointer;
-  margin-top: 0.5rem;
-  box-shadow: 0 2px 8px rgba(76,175,80,0.15);
-  transition: background 0.2s;
+  margin-top: 0.75rem;
+  box-shadow: 0 18px 45px rgba(161,207,111,0.35);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 .signup-popup__submit:hover {
-  background: #388e3c;
+  transform: translateY(-2px);
+  box-shadow: 0 26px 55px rgba(161,207,111,0.45);
 }
 .signup-popup__close {
   position: absolute;
@@ -262,6 +302,12 @@ function onLogin() {
 }
 .signup-popup__login-btn:hover {
   color: var(--color-green, #4caf50);
+}
+.signup-popup__microcopy {
+  margin: 0.75rem 0 0;
+  text-align: center;
+  color: rgba(255,255,255,0.7);
+  font-size: 0.85rem;
 }
 @media (max-width: 600px) {
   .signup-popup__content--row {
