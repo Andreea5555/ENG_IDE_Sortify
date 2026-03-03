@@ -182,7 +182,7 @@ function onLogin() {
   border: 1px solid var(--color-brown, #795548);
   border-radius: 6px;
   font-size: 1rem;
-  background: #fff;
+  background: var(--color-cream);
   color: #333;
 }
 .signup-popup__error {

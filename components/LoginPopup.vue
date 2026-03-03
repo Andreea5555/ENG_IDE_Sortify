@@ -57,7 +57,7 @@ function onSignUp() {
 }
 .login-popup__content {
   position: relative;
-  background: #fff;
+  background: var(--color-cream);
   padding: 2rem 2.5rem;
   border-radius: 12px;
   box-shadow: 0 4px 32px rgba(0,0,0,0.18);
@@ -118,6 +118,7 @@ function onSignUp() {
   border: 1px solid #ccc;
   border-radius: 6px;
   font-size: 1rem;
+  background: var(--color-cream);
 }
 .login-popup__submit {
   width: 100%;

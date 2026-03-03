@@ -1,6 +1,6 @@
 <template>
   <div class="app-wrapper">
-    <Navbar @show-signup="showSignUp = true">
+    <Navbar @show-signup="showSignUp = true" @show-login="onShowLogin">
       <template #logo>
         <!-- Use the user-provided Logo.png from assets (imported as `logo`) -->
         <img :src="logo" alt="Sortify logo" style="width:40px;height:40px;border-radius:6px;object-fit:cover" />
@@ -77,7 +77,7 @@ function onShowSignUp() {
   background: rgba(0,0,0,0.25);
 }
 .congrats-content {
-  background: #fff;
+  background: var(--color-cream);
   border-radius: 16px;
   padding: 2.5rem 2.5rem 2rem 2.5rem;
   box-shadow: 0 6px 32px rgba(76,175,80,0.18);

@@ -67,7 +67,7 @@ const year = new Date().getFullYear()
   position: relative;
   margin-top: auto;
   color: rgba(255, 255, 255, 0.9);
-  padding: 2.75rem 2rem 0;
+  padding: 1.75rem 1.5rem 0;
   overflow: hidden;
 }
 .footer::before {
@@ -84,8 +84,8 @@ const year = new Date().getFullYear()
   z-index: 1;
   display: grid;
   grid-template-columns: 1.4fr 1fr 1fr 1fr;
-  gap: 2rem;
-  max-width: 1100px;
+  gap: 1.25rem;
+  max-width: 1040px;
   margin: 0 auto;
 }
 
@@ -93,32 +93,32 @@ const year = new Date().getFullYear()
 .footer__brand {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
 }
 .footer__logo {
-  width: 36px;
-  height: 36px;
+  width: 30px;
+  height: 30px;
   border-radius: 6px;
   object-fit: cover;
 }
 .footer__title {
   font-weight: 700;
-  font-size: 1.15rem;
+  font-size: 1rem;
   color: #fff;
 }
 .footer__about {
-  font-size: 0.88rem;
-  line-height: 1.55;
+  font-size: 0.82rem;
+  line-height: 1.5;
   color: rgba(255, 255, 255, 0.72);
-  max-width: 260px;
+  max-width: 240px;
 }
 
 /* Column headings */
 .footer__col h4 {
-  font-size: 0.92rem;
+  font-size: 0.85rem;
   font-weight: 700;
-  margin: 0 0 0.75rem;
+  margin: 0 0 0.55rem;
   color: #fff;
   letter-spacing: 0.02em;
 }
@@ -130,12 +130,12 @@ const year = new Date().getFullYear()
   padding: 0;
 }
 .footer__col li {
-  margin-bottom: 0.45rem;
+  margin-bottom: 0.35rem;
 }
 .footer__col a {
   color: rgba(255, 255, 255, 0.78);
   text-decoration: none;
-  font-size: 0.88rem;
+  font-size: 0.82rem;
   transition: color 0.15s;
 }
 .footer__col a:hover {
@@ -159,24 +159,24 @@ const year = new Date().getFullYear()
   position: relative;
   z-index: 1;
   border-top: 1px solid rgba(255, 255, 255, 0.12);
-  margin-top: 2rem;
-  padding: 1rem 0;
+  margin-top: 1.25rem;
+  padding: 0.75rem 0;
   text-align: center;
 }
 .footer__bottom p {
   margin: 0;
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   color: rgba(255, 255, 255, 0.55);
 }
 
 /* Responsive */
 @media (max-width: 1024px) {
   .footer {
-    padding: 2.5rem 1.5rem 0;
+    padding: 1.5rem 1.25rem 0;
   }
   .footer__inner {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1.5rem;
+    gap: 1rem;
   }
 }
 @media (max-width: 900px) {
@@ -208,7 +208,7 @@ const year = new Date().getFullYear()
     justify-content: center;
   }
   .footer {
-    padding: 2rem 1.25rem 0;
+    padding: 1.25rem 1rem 0;
   }
 }
 </style>
