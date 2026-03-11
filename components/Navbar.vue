@@ -25,7 +25,7 @@
         class="navbar__toggle"
         type="button"
         aria-label="Toggle navigation"
-        :aria-expanded="isMenuOpen.toString()"
+        :aria-expanded="isMenuOpen"
         @click="isMenuOpen = !isMenuOpen"
       >
         <span></span>
