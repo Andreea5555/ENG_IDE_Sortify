@@ -74,10 +74,7 @@
               <label for="f-location" class="mp__filter-label">Location</label>
               <select id="f-location" v-model="filters.location" class="mp__select">
                 <option value="">All locations</option>
-                <option value="aarhus">Aarhus</option>
-                <option value="copenhagen">Copenhagen</option>
-                <option value="odense">Odense</option>
-                <option value="aalborg">Aalborg</option>
+                <option v-for="location in locationOptions" :key="location" :value="location.toLowerCase()">{{ location }}</option>
               </select>
             </div>
 
@@ -139,7 +136,7 @@
                 <p class="mp__card-meta">
                   <span>• {{ formatDate(item.availabilityDate) }}</span>
                 </p>
-                <NuxtLink :to="'/marketplace/' + item.id" class="mp__card-btn">
+                <NuxtLink :to="'/listing-details/' + item.id" class="mp__card-btn">
                   View Details
                 </NuxtLink>
               </div>
@@ -169,6 +166,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
+import db from '~/../db/db.json'
 
 const route = useRoute()
 const searchQuery = ref((route.query.search as string) || '')
@@ -177,19 +175,6 @@ const searchQuery = ref((route.query.search as string) || '')
 watch(() => route.query.search, (val) => {
   searchQuery.value = (val as string) || ''
 })
-
-import imgWoodBeams from '../../assets/images/Reclaimed wood beams at a construction site.png'
-import imgBricks from '../../assets/images/Stacked red bricks on wooden pallet.png'
-import imgSteel from '../../assets/images/Steel rebar bundle at construction site.png'
-import imgConcrete from '../../assets/images/Stacked concrete blocks on wooden pallet.png'
-import imgInsulation from '../../assets/images/Fiberglass insulation rolls on construction site.png'
-import imgOakFlooring from '../../assets/images/Reclaimed oak flooring stack in daylight.png'
-import imgGranite from '../../assets/images/Granite paving stones on construction pallet.png'
-import imgCopper from '../../assets/images/Stack of copper pipes on pallet.png'
-import imgRoofTiles from '../../assets/images/Terracotta roof tiles on site.png'
-import imgGlassWool from '../../assets/images/Stack of glass wool insulation batts.png'
-import imgPlywood from '../../assets/images/Recycled plywood stacks at construction site.png'
-import imgIBeams from '../../assets/images/Stacked steel I-beams on pallet.png'
 
 /* ──────────────── City coordinates (lat, lng) ──────────────── */
 const cityCoords: Record<string, { lat: number; lng: number }> = {
@@ -276,6 +261,7 @@ interface Material {
   title: string
   category: string
   location: string
+  city: string
   quantity: number
   unit: string
   availabilityDate: string
@@ -286,27 +272,56 @@ interface Material {
 const ITEMS_PER_PAGE = 6
 const showCount = ref(ITEMS_PER_PAGE)
 
-const materials: Material[] = [
-  { id: 1, title: 'Wood Beams', category: 'wood', location: 'Aarhus', quantity: 120, unit: 'pcs', availabilityDate: '2026-03-01', status: 'available', image: imgWoodBeams },
-  { id: 2, title: 'Bricks', category: 'brick', location: 'Copenhagen', quantity: 800, unit: 'pcs', availabilityDate: '2026-03-05', status: 'available', image: imgBricks },
-  { id: 3, title: 'Steel Reinforcement Bars', category: 'metal', location: 'Odense', quantity: 340, unit: 'kg', availabilityDate: '2026-03-10', status: 'reserved', image: imgSteel },
-  { id: 4, title: 'Concrete Blocks', category: 'concrete', location: 'Aalborg', quantity: 500, unit: 'pcs', availabilityDate: '2026-02-28', status: 'available', image: imgConcrete },
-  { id: 5, title: 'Roof Insulation Rolls', category: 'insulation', location: 'Aarhus', quantity: 60, unit: 'rolls', availabilityDate: '2026-03-12', status: 'available', image: imgInsulation },
-  { id: 6, title: 'Reclaimed Oak Flooring', category: 'wood', location: 'Copenhagen', quantity: 45, unit: 'm²', availabilityDate: '2026-03-08', status: 'sold', image: imgOakFlooring },
-  { id: 7, title: 'Granite Paving Stones', category: 'other', location: 'Aalborg', quantity: 220, unit: 'pcs', availabilityDate: '2026-03-15', status: 'available', image: imgGranite },
-  { id: 8, title: 'Copper Piping', category: 'metal', location: 'Copenhagen', quantity: 180, unit: 'm', availabilityDate: '2026-03-18', status: 'available', image: imgCopper },
-  { id: 9, title: 'Clay Roof Tiles', category: 'brick', location: 'Odense', quantity: 1200, unit: 'pcs', availabilityDate: '2026-03-20', status: 'reserved', image: imgRoofTiles },
-  { id: 10, title: 'Glass Wool Batts', category: 'insulation', location: 'Aarhus', quantity: 95, unit: 'packs', availabilityDate: '2026-03-22', status: 'available', image: imgGlassWool },
-  { id: 11, title: 'Recycled Plywood Sheets', category: 'wood', location: 'Aalborg', quantity: 75, unit: 'sheets', availabilityDate: '2026-03-25', status: 'available', image: imgPlywood },
-  { id: 12, title: 'Structural Steel I-Beams', category: 'metal', location: 'Copenhagen', quantity: 28, unit: 'pcs', availabilityDate: '2026-04-01', status: 'sold', image: imgIBeams },
-]
+function getCategory(name: string): Material['category'] {
+  const value = name.toLowerCase()
+  if (value.includes('wood') || value.includes('timber') || value.includes('plywood') || value.includes('oak')) return 'wood'
+  if (value.includes('brick') || value.includes('tile') || value.includes('masonry')) return 'brick'
+  if (value.includes('steel') || value.includes('metal') || value.includes('copper')) return 'metal'
+  if (value.includes('concrete')) return 'concrete'
+  if (value.includes('insulation') || value.includes('glass wool')) return 'insulation'
+  return 'other'
+}
+
+function getCity(location: string): string {
+  if (!location) return 'Unknown'
+  const knownCities = ['Aarhus', 'Copenhagen', 'Odense', 'Aalborg']
+  const found = knownCities.find((city) => location.toLowerCase().includes(city.toLowerCase()))
+  if (found) return found
+  const parts = location.split(',').map((part) => part.trim()).filter(Boolean)
+  return parts[parts.length - 1] || location
+}
+
+const materials = computed<Material[]>(() => {
+  return db.materials.map((material) => {
+    const project = db.projects.find((p) => p.id === material.project_id)
+    const unit = db.units.find((u) => u.id === material.unit_id)
+    const location = project?.location || 'Unknown'
+
+    return {
+      id: material.id,
+      title: material.name,
+      category: getCategory(material.name),
+      location,
+      city: getCity(location),
+      quantity: material.quantity,
+      unit: unit?.value || 'pcs',
+      availabilityDate: project?.creation_date?.slice(0, 10) || '2026-01-01',
+      status: (material.status || 'available') as Material['status'],
+      image: material.photo || ''
+    }
+  })
+})
+
+const locationOptions = computed(() => {
+  return Array.from(new Set(materials.value.map((material) => material.city))).sort((a, b) => a.localeCompare(b))
+})
 
 const filteredMaterials = computed(() => {
   const q = searchQuery.value.toLowerCase().trim()
-  const filtered = materials.filter((m) => {
+  const filtered = materials.value.filter((m) => {
     if (q && !m.title.toLowerCase().includes(q) && !m.category.toLowerCase().includes(q)) return false
     if (filters.value.category && m.category !== filters.value.category) return false
-    if (filters.value.location && m.location.toLowerCase() !== filters.value.location) return false
+    if (filters.value.location && m.city.toLowerCase() !== filters.value.location) return false
     if (filters.value.qtyMin != null && m.quantity < filters.value.qtyMin) return false
     if (filters.value.qtyMax != null && m.quantity > filters.value.qtyMax) return false
     if (filters.value.availableFrom && m.availabilityDate < filters.value.availableFrom) return false

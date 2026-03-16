@@ -18,6 +18,22 @@
         </div>
       </section>
 
+      <section class="cat__add-project">
+        <h2 class="cat__add-title">Add Project (writes to DB)</h2>
+        <form class="cat__add-form" @submit.prevent="addProject">
+          <input v-model="newProjectTitle" type="text" placeholder="Project title" required />
+          <input v-model="newProjectLocation" type="text" placeholder="Location (e.g. Aarhus)" required />
+          <select v-model.number="newProjectSellerId" required>
+            <option :value="null" disabled>Select seller</option>
+            <option v-for="seller in sellers" :key="seller.id" :value="seller.id">
+              {{ seller.first_name }} {{ seller.last_name }} ({{ seller.email }})
+            </option>
+          </select>
+          <button type="submit">Add Project</button>
+        </form>
+        <p v-if="addProjectMessage" class="cat__add-message">{{ addProjectMessage }}</p>
+      </section>
+
       <!-- ───── Projects Grid ───── -->
       <section class="cat__grid">
         <div
@@ -85,118 +101,94 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import aarhusImg from '../../../assets/images/Aarhus_University_Hospital.jpg'
-import carlsbergImg from '../../../assets/images/CARLSBERG_BYEN_20220812_TH_0010.jpg'
-import odenseImg from '../../../assets/images/Odense_Harbour_Silo_Complex.jpg'
-import aalborgImg from '../../../assets/images/Aalborg_Cement_Factory_East.jpg'
-import frederiksbergImg from '../../../assets/images/Frederiksberg_School_Renovation.jpg'
-import roskildeImg from '../../../assets/images/Roskilde_Viking_Museum_Hal.jpg'
+import { computed, ref } from 'vue'
+import db from '~/../db/db.json'
 
 export interface Project {
   id: number
   name: string
   location: string
   building: string
-  photo: string
-  started: string
   status: 'active' | 'completed' | 'planned'
+  started: string
   totalKg: number
   materialCount: number
+  photo: string
   accent: string
-  lat: number
-  lng: number
 }
 
-const projects: Project[] = [
-  {
-    id: 1,
-    name: 'Aarhus University Hospital Wing B',
-    location: 'Aarhus',
-    building: 'Demolition of the 1970s radiology wing — 4 stories, steel-frame structure with concrete facade panels.',
-    photo: aarhusImg,
-    started: 'Feb 2026',
-    status: 'active',
-    totalKg: 16_790,
-    materialCount: 14,
-    accent: '#2f7a3e',
-    lat: 56.1629,
-    lng: 10.2039,
-  },
-  {
-    id: 2,
-    name: 'Carlsberg Byen Warehouse 7',
-    location: 'Copenhagen',
-    building: 'Selective strip-out of a 1920s brick warehouse in the Carlsberg district for adaptive reuse conversion.',
-    photo: carlsbergImg,
-    started: 'Jan 2026',
-    status: 'active',
-    totalKg: 24_300,
-    materialCount: 22,
-    accent: '#92400e',
-    lat: 55.6631,
-    lng: 12.5328,
-  },
-  {
-    id: 3,
-    name: 'Odense Harbour Silo Complex',
-    location: 'Odense',
-    building: 'Demolition of three 1960s grain silos at the inner harbour — reinforced concrete, 40 m tall.',
-    photo: odenseImg,
-    started: 'Mar 2026',
-    status: 'planned',
-    totalKg: 0,
-    materialCount: 0,
-    accent: '#6b7280',
-    lat: 55.4038,
-    lng: 10.4024,
-  },
-  {
-    id: 4,
-    name: 'Aalborg Cement Factory East',
-    location: 'Aalborg',
-    building: 'Partial teardown of the eastern kiln building — heavy steel beams, refractory bricks, copper wiring.',
-    photo: aalborgImg,
-    started: 'Dec 2025',
-    status: 'active',
-    totalKg: 31_500,
-    materialCount: 18,
-    accent: '#374151',
-    lat: 57.0488,
-    lng: 9.9217,
-  },
-  {
-    id: 5,
-    name: 'Frederiksberg School Renovation',
-    location: 'Frederiksberg',
-    building: 'Interior gutting of a 1950s public school — timber roof trusses, terrazzo floors, original oak doors.',
-    photo: frederiksbergImg,
-    started: 'Nov 2025',
-    status: 'completed',
-    totalKg: 8_400,
-    materialCount: 11,
-    accent: '#7c3aed',
-    lat: 55.6794,
-    lng: 12.5317,
-  },
-  {
-    id: 6,
-    name: 'Roskilde Viking Museum Hall',
-    location: 'Roskilde',
-    building: 'Teardown of the 1969 exhibition wing — exposed aggregate concrete, laminated timber arches, zinc cladding.',
-    photo: roskildeImg,
-    started: 'Jan 2026',
-    status: 'active',
-    totalKg: 11_250,
-    materialCount: 9,
-    accent: '#0e7490',
-    lat: 55.6508,
-    lng: 12.0813,
-  },
-]
+const projectsData = db.projects.map(p => {
+  const materials = db.materials.filter(m => m.project_id === p.id);
+  const totalWeight = materials.reduce((acc, m) => acc + (m.quantity || 0), 0); // Assuming quantity is in kg for simplicity
+  const creationDate = new Date(p.creation_date);
+  const now = new Date();
+  const diffTime = Math.abs(now.getTime() - creationDate.getTime());
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  const status = diffDays <= 30 ? 'active' : (creationDate > now ? 'planned' : 'completed');
 
-const totalMaterials = computed(() => projects.reduce((s, p) => s + p.totalKg, 0))
-const activeCount = computed(() => projects.filter((p) => p.status === 'active').length)
+  return {
+    id: p.id,
+    name: p.title,
+    location: p.location,
+    building: 'Building type placeholder', // This info is not in your db schema
+    status: status,
+    started: creationDate.toLocaleDateString(),
+    totalKg: totalWeight,
+    materialCount: materials.length,
+    photo: p.photo || '/images/projects/project-1.jpg',
+    accent: ['#4A90E2', '#50E3C2', '#F5A623', '#D0021B', '#BD10E0', '#9013FE'][p.id % 6]
+  };
+});
+
+const projects = ref<Project[]>(projectsData);
+const sellers = db.users.filter(user => user.type === 'business')
+const newProjectTitle = ref('')
+const newProjectLocation = ref('')
+const newProjectSellerId = ref<number | null>(1)
+const addProjectMessage = ref('')
+
+const totalMaterials = computed(() =>
+  projects.value.reduce((sum, p) => sum + p.totalKg, 0)
+)
+const activeCount = computed(() =>
+  projects.value.filter(p => p.status === 'active').length
+)
+
+const addProject = async () => {
+  addProjectMessage.value = ''
+
+  if (!import.meta.client) return
+  const userRaw = localStorage.getItem('sortifyUser')
+  if (!userRaw) {
+    addProjectMessage.value = 'Please log in before adding projects.'
+    return
+  }
+  const user = JSON.parse(userRaw)
+
+  const response = await fetch('/api/add-project', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-user-id': String(user.id)
+    },
+    body: JSON.stringify({
+      title: newProjectTitle.value,
+      location: newProjectLocation.value,
+      photo: '/images/projects/project-1.jpg'
+    })
+  })
+
+  const result = await response.json()
+  if (!result.success) {
+    addProjectMessage.value = `Failed: ${result.message}`
+    return
+  }
+
+  addProjectMessage.value = 'Project added to DB. Refresh page to see it in list.'
+  newProjectTitle.value = ''
+  newProjectLocation.value = ''
+  newProjectSellerId.value = 1
+}
 </script>
 
 <style scoped>
@@ -265,6 +257,54 @@ const activeCount = computed(() => projects.filter((p) => p.status === 'active')
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
+}
+
+.cat__add-project {
+  background: #fff;
+  border: 1px solid #e5e7e0;
+  border-radius: 14px;
+  padding: 1rem;
+}
+
+.cat__add-title {
+  margin: 0 0 0.75rem;
+  font-size: 1.05rem;
+  color: #1a1a1a;
+}
+
+.cat__add-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.6rem;
+}
+
+.cat__add-form input {
+  padding: 0.6rem 0.75rem;
+  border: 1px solid #d7dbd1;
+  border-radius: 8px;
+}
+
+.cat__add-form select {
+  padding: 0.6rem 0.75rem;
+  border: 1px solid #d7dbd1;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.cat__add-form button {
+  border: none;
+  border-radius: 8px;
+  background: #2f7a3e;
+  color: #fff;
+  padding: 0.6rem 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cat__add-message {
+  margin: 0.65rem 0 0;
+  color: #2f7a3e;
+  font-weight: 600;
 }
 
 /* ──── Flip Card ──── */

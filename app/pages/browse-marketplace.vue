@@ -1,3 +1,22 @@
+<script setup lang="ts">
+import { getListings } from '~/data/db'
+
+const listings = getListings()
+
+const quickFilters = ['Available now', 'Pickup', 'Freebies', 'Verified sellers', 'Bulk lots']
+const categories = [
+  'Timber & framing',
+  'Masonry',
+  'Roofing',
+  'Flooring',
+  'Plumbing',
+  'Metals',
+  'Insulation',
+  'Fixtures'
+]
+const conditions = ['New', 'Good', 'Fair', 'Needs repair']
+</script>
+
 <template>
   <section class="marketplace" role="main">
     <div class="marketplace__hero">
@@ -110,24 +129,7 @@
   </section>
 </template>
 
-<script setup lang="ts">
-import { listings } from '../data/listings'
 
-const categories = [
-  'Timber & framing',
-  'Masonry',
-  'Roofing',
-  'Flooring',
-  'Plumbing',
-  'Metals',
-  'Insulation',
-  'Fixtures'
-]
-
-const conditions = ['New', 'Good', 'Fair', 'Needs repair']
-
-const quickFilters = ['Available now', 'Pickup', 'Freebies', 'Verified sellers', 'Bulk lots']
-</script>
 
 <style scoped>
 .marketplace {

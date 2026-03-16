@@ -1,0 +1,251 @@
+{
+  "units": [
+    {
+      "id": 1,
+      "value": "pcs"
+    },
+    {
+      "id": 2,
+      "value": "kgs"
+    },
+    {
+      "id": 3,
+      "value": "liters"
+    },
+    {
+      "id": 4,
+      "value": "lbs"
+    }
+  ],
+  "materials": [
+    {
+      "id": 1,
+      "name": "FROM DB - Reclaimed Bricks",
+      "quantity": 500,
+      "unit_id": 1,
+      "status": "available",
+      "description": "High-quality reclaimed bricks from a historic building. Perfect for feature walls or paving.",
+      "photo": "/images/reclaimed-bricks.jpg",
+      "condition": "Used - Good",
+      "project_id": 1
+    },
+    {
+      "id": 2,
+      "name": "FROM DB - Steel Beams",
+      "quantity": 10,
+      "unit_id": 1,
+      "status": "available",
+      "description": "Structural steel beams, various lengths. Ideal for construction projects.",
+      "photo": "/images/steel-beams.jpg",
+      "condition": "Used - Excellent",
+      "project_id": 1
+    },
+    {
+      "id": 3,
+      "name": "FROM DB - Timber Planks",
+      "quantity": 64,
+      "unit_id": 1,
+      "status": "available",
+      "description": "Timber planks added from db.json so you can verify DB rendering.",
+      "photo": "",
+      "condition": "Used - Good",
+      "project_id": 2
+    },
+    {
+      "id": 4,
+      "name": "FROM DB - Concrete Blocks",
+      "quantity": 320,
+      "unit_id": 1,
+      "status": "available",
+      "description": "Concrete blocks from db.json test data.",
+      "photo": "",
+      "condition": "Used - Good",
+      "project_id": 2
+    },
+    {
+      "id": 5,
+      "name": "FROM DB - Copper Pipes",
+      "quantity": 180,
+      "unit_id": 1,
+      "status": "available",
+      "description": "Copper pipes from db.json test data.",
+      "photo": "",
+      "condition": "Used - Excellent",
+      "project_id": 3
+    },
+    {
+      "id": 6,
+      "name": "FROM DB - Roof Insulation Rolls",
+      "quantity": 90,
+      "unit_id": 1,
+      "status": "available",
+      "description": "Insulation rolls from db.json test data.",
+      "photo": "",
+      "condition": "New",
+      "project_id": 3
+    },
+    {
+      "id": 7,
+      "name": "test",
+      "unit_id": 2,
+      "quantity": 2,
+      "status": "available",
+      "condition": "Used - Good",
+      "photo": "/images/5c8b1073-7ebc-47a4-a067-bb12e52bd44e-1b4858fbd24046a81cace5ee18d19c868262b91f.jpg",
+      "description": "test",
+      "project_id": 4
+    },
+    {
+      "id": 8,
+      "name": "vgvg",
+      "unit_id": 2,
+      "quantity": 6,
+      "condition": "Used - Good",
+      "photo": "/images/d57ea216-4fdc-4d72-8a11-9a07d04daed1-1b4858fbd24046a81cace5ee18d19c868262b91f.jpg",
+      "description": "jhjk",
+      "project_id": 5
+    }
+  ],
+  "projects": [
+    {
+      "id": 1,
+      "title": "FROM DB - Downtown Office Deconstruction",
+      "location": "Vesterbrogade 41, 1620 København V, Denmark",
+      "lat": 55.6707,
+      "lng": 12.5533,
+      "photo": "/images/projects/project-1.jpg",
+      "seller_id": 1,
+      "creation_date": "2026-03-15T10:00:00Z",
+      "statistics_id": 1
+    },
+    {
+      "id": 2,
+      "title": "FROM DB - Aarhus School Retrofit",
+      "location": "Nørrebrogade 45, 8000 Aarhus C, Denmark",
+      "lat": 56.1568,
+      "lng": 10.2036,
+      "photo": "/images/projects/project-2.jpg",
+      "seller_id": 2,
+      "creation_date": "2026-03-12T08:30:00Z",
+      "statistics_id": 2
+    },
+    {
+      "id": 3,
+      "title": "FROM DB - Odense Warehouse Strip-out",
+      "location": "Vestergade 12, 5000 Odense C, Denmark",
+      "lat": 55.3969,
+      "lng": 10.3883,
+      "photo": "/images/projects/project-3.jpg",
+      "seller_id": 3,
+      "creation_date": "2026-03-10T14:00:00Z",
+      "statistics_id": 3
+    },
+    {
+      "id": 4,
+      "title": "test",
+      "location": "Boulevarden 14, 9000 Aalborg, Denmark",
+      "lat": 57.0482,
+      "lng": 9.9217,
+      "photo": "/images/projects/project-4.jpg",
+      "seller_id": 1,
+      "creation_date": "2026-03-16T16:07:39.850Z",
+      "statistics_id": 4
+    },
+    {
+      "id": 5,
+      "title": "testtt",
+      "location": "dfsdsf",
+      "photo": "/images/projects/project-1.jpg",
+      "seller_id": 1,
+      "creation_date": "2026-03-16T16:17:09.539Z",
+      "statistics_id": 5
+    }
+  ],
+  "reservations": [
+    {
+      "id": 1,
+      "seller_id": 1,
+      "customer_id": 2,
+      "project_id": 1,
+      "material_id": 1,
+      "status": "Pending"
+    },
+    {
+      "id": 2,
+      "seller_id": 1,
+      "customer_id": 2,
+      "project_id": 4,
+      "material_id": 7,
+      "status": "Pending"
+    }
+  ],
+  "users": [
+    {
+      "id": 1,
+      "first_name": "Seller",
+      "last_name": "One",
+      "phone": "+4511111111",
+      "email": "seller1@gmail.com",
+      "password": "Seller1!pass",
+      "type": "business",
+      "created_at": "2026-03-01T09:00:00Z"
+    },
+    {
+      "id": 2,
+      "first_name": "Customer",
+      "last_name": "One",
+      "phone": "+4522222222",
+      "email": "customer1@gmail.com",
+      "password": "Customer1!pass",
+      "type": "private",
+      "created_at": "2026-03-01T09:30:00Z"
+    },
+    {
+      "id": 3,
+      "first_name": "Seller",
+      "last_name": "Three",
+      "phone": "+4533333333",
+      "email": "seller3@gmail.com",
+      "password": "Seller3!pass",
+      "type": "business",
+      "created_at": "2026-03-01T10:00:00Z"
+    }
+  ],
+  "statistics": [
+    {
+      "id": 1,
+      "reused": 1500,
+      "recycled": 500,
+      "waste": 100,
+      "co2_saved": 2.5
+    },
+    {
+      "id": 2,
+      "reused": 1100,
+      "recycled": 450,
+      "waste": 90,
+      "co2_saved": 1.9
+    },
+    {
+      "id": 3,
+      "reused": 980,
+      "recycled": 380,
+      "waste": 75,
+      "co2_saved": 1.6
+    },
+    {
+      "id": 4,
+      "reused": 0,
+      "recycled": 0,
+      "waste": 0,
+      "co2_saved": 0
+    },
+    {
+      "id": 5,
+      "reused": 0,
+      "recycled": 0,
+      "waste": 0,
+      "co2_saved": 0
+    }
+  ]
+}

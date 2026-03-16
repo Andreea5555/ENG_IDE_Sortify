@@ -3,11 +3,18 @@
     <div class="placeholder-page__container">
       <span class="placeholder-page__icon">🔍</span>
       <h1>Material Details</h1>
-      <p>This page is coming soon.</p>
+      <p>This page is connected to db.json ({{ materialCount }} materials currently).</p>
+      <NuxtLink to="/add-material" class="placeholder-page__link">+ Add material to DB</NuxtLink>
       <NuxtLink to="/marketplace" class="placeholder-page__link">← Back to Marketplace</NuxtLink>
     </div>
   </main>
 </template>
+
+<script setup lang="ts">
+import db from '~/../db/db.json'
+
+const materialCount = db.materials.length
+</script>
 
 <style scoped>
 .placeholder-page { flex:1; display:flex; align-items:center; justify-content:center; padding:40px 24px; background:#f6f7f3; }

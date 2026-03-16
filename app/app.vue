@@ -20,6 +20,7 @@
     <main class="app-main">
       <NuxtPage />
     </main>
+    <DbConnectPanel />
     <NuxtRouteAnnouncer />
 
     <AppFooter />
@@ -33,6 +34,7 @@ import AppFooter from '../components/AppFooter.vue'
 import logo from '../assets/images/Logo.png'
 import SignUpPopup from '../components/SignUpPopup.vue'
 import LoginPopup from '../components/LoginPopup.vue'
+import DbConnectPanel from '../components/DbConnectPanel.vue'
 
 const showSignUp = ref(false)
 const showCongrats = ref(false)

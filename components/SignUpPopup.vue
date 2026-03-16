@@ -22,6 +22,7 @@
           <div v-if="passwordError" class="signup-popup__error">
             Password must have at least 8 characters, one uppercase, one lowercase, one number, and one special character.
           </div>
+          <div v-if="submitError" class="signup-popup__error">{{ submitError }}</div>
           <div class="signup-popup__type-checkboxes">
             <label>
               <input type="checkbox" value="private" v-model="userType" :checked="userType === 'private'" @change="userType = 'private'" />
@@ -57,6 +58,7 @@ const phone = ref('')
 const email = ref('')
 const password = ref('')
 const userType = ref<'private' | 'business'>('private')
+const submitError = ref('')
 
 const phoneError = ref(false)
 const emailError = ref(false)
@@ -102,12 +104,36 @@ function closePopup() {
   emit('close')
 }
 
-function submitForm() {
+async function submitForm() {
   if (phoneError.value || emailError.value || passwordError.value) return
-  // Only emit 'signed-up' if userType is 'private'
-  if (userType.value === 'private') {
-    emit('signed-up')
+  submitError.value = ''
+
+  const response = await fetch('/api/register', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      firstName: firstName.value,
+      lastName: lastName.value,
+      phone: phone.value,
+      email: email.value,
+      password: password.value,
+      userType: userType.value
+    })
+  })
+
+  const result = await response.json()
+  if (!result.success) {
+    submitError.value = result.message || 'Registration failed'
+    return
   }
+
+  if (import.meta.client) {
+    localStorage.setItem('sortifyUser', JSON.stringify(result.user))
+  }
+
+  emit('signed-up')
   closePopup()
 }
 
