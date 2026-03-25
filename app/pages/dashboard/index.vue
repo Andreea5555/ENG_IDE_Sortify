@@ -23,22 +23,89 @@
         <form class="cat__add-form" @submit.prevent="addProject">
           <input v-model="newProjectTitle" type="text" placeholder="Project title" required />
           <input v-model="newProjectLocation" type="text" placeholder="Location (e.g. Aarhus)" required />
-          <select v-model.number="newProjectSellerId" required>
-            <option :value="null" disabled>Select seller</option>
-            <option v-for="seller in sellers" :key="seller.id" :value="seller.id">
-              {{ seller.first_name }} {{ seller.last_name }} ({{ seller.email }})
-            </option>
-          </select>
+          <input :value="loggedInEmail || 'Please log in to add projects'" type="text" readonly />
           <button type="submit">Add Project</button>
         </form>
         <p v-if="addProjectMessage" class="cat__add-message">{{ addProjectMessage }}</p>
       </section>
 
-      <!-- ───── Projects Grid ───── -->
-      <section class="cat__grid">
+      <section class="cat__section">
+        <div class="cat__section-head">
+          <h2>My Projects</h2>
+          <span>{{ myProjects.length }} items</span>
+        </div>
+        <div class="cat__grid">
+          <div
+            v-for="p in myProjects"
+            :key="`my-${p.id}`"
+            class="cat__card"
+            :style="{ '--accent': p.accent }"
+          >
+            <div class="cat__card-inner">
+
+              <!-- ▸▸▸ FRONT — Photo + Name + Button ▸▸▸ -->
+              <div class="cat__card-front">
+                <img
+                  :src="p.photo"
+                  :alt="p.name"
+                  class="cat__card-img"
+                />
+                <div class="cat__card-overlay">
+                  <span class="cat__card-status" :class="'cat__card-status--' + p.status">
+                    {{ p.status }}
+                  </span>
+                  <div class="cat__card-overlay-bottom">
+                    <h2 class="cat__card-front-title">{{ p.name }}</h2>
+                    <p class="cat__card-front-loc">📍 {{ p.location }}</p>
+                    <NuxtLink :to="'/dashboard/' + p.id" class="cat__card-btn">
+                      View Project →
+                    </NuxtLink>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ◂◂◂ BACK — Info ◂◂◂ -->
+              <div class="cat__card-back">
+                <div class="cat__card-top" />
+                <div class="cat__card-body">
+                  <h2 class="cat__card-title">{{ p.name }}</h2>
+                  <p class="cat__card-loc">📍 {{ p.location }}</p>
+                  <p class="cat__card-building">{{ p.building }}</p>
+
+                  <div class="cat__card-stats">
+                    <span class="cat__card-stat">
+                      <strong>{{ p.totalKg.toLocaleString() }}</strong> kg
+                    </span>
+                    <span class="cat__card-stat">
+                      <strong>{{ p.materialCount }}</strong> materials
+                    </span>
+                  </div>
+
+                  <p class="cat__card-date">Started {{ p.started }}</p>
+                </div>
+
+                <div class="cat__card-footer">
+                  <NuxtLink :to="'/dashboard/' + p.id" class="cat__card-cta">
+                    View Project →
+                  </NuxtLink>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+        <p v-if="myProjects.length === 0" class="cat__empty">No owned projects yet.</p>
+      </section>
+
+      <section class="cat__section">
+        <div class="cat__section-head">
+          <h2>Other Projects</h2>
+          <span>{{ otherProjects.length }} items</span>
+        </div>
+        <div class="cat__grid">
         <div
-          v-for="p in projects"
-          :key="p.id"
+          v-for="p in otherProjects"
+          :key="`other-${p.id}`"
           class="cat__card"
           :style="{ '--accent': p.accent }"
         >
@@ -94,6 +161,8 @@
 
           </div>
         </div>
+        </div>
+        <p v-if="otherProjects.length === 0" class="cat__empty">No other projects available.</p>
       </section>
 
     </div>
@@ -101,11 +170,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import db from '~/../db/db.json'
 
 export interface Project {
   id: number
+  sellerId: number
   name: string
   location: string
   building: string
@@ -128,6 +198,7 @@ const projectsData = db.projects.map(p => {
 
   return {
     id: p.id,
+    sellerId: p.seller_id,
     name: p.title,
     location: p.location,
     building: 'Building type placeholder', // This info is not in your db schema
@@ -141,11 +212,62 @@ const projectsData = db.projects.map(p => {
 });
 
 const projects = ref<Project[]>(projectsData);
-const sellers = db.users.filter(user => user.type === 'business')
 const newProjectTitle = ref('')
 const newProjectLocation = ref('')
-const newProjectSellerId = ref<number | null>(1)
+const loggedInEmail = ref('')
+const currentUserId = ref<number | null>(null)
 const addProjectMessage = ref('')
+
+function syncSessionUser() {
+  if (!import.meta.client) return
+  const userRaw = sessionStorage.getItem('sortifyUser')
+  if (!userRaw) {
+    loggedInEmail.value = ''
+    currentUserId.value = null
+    return
+  }
+
+  try {
+    const user = JSON.parse(userRaw)
+    loggedInEmail.value = user.email || ''
+    currentUserId.value = Number.isFinite(Number(user.id)) ? Number(user.id) : null
+  } catch {
+    loggedInEmail.value = ''
+    currentUserId.value = null
+  }
+}
+
+onMounted(() => {
+  syncSessionUser()
+  if (import.meta.client) {
+    window.addEventListener('sortify-auth-changed', syncSessionUser)
+  }
+})
+
+onBeforeUnmount(() => {
+  if (!import.meta.client) return
+  window.removeEventListener('sortify-auth-changed', syncSessionUser)
+})
+
+onMounted(() => {
+  if (!import.meta.client) return
+  window.addEventListener('storage', syncSessionUser)
+})
+
+onBeforeUnmount(() => {
+  if (!import.meta.client) return
+  window.removeEventListener('storage', syncSessionUser)
+})
+
+const myProjects = computed(() => {
+  if (!currentUserId.value) return []
+  return projects.value.filter(project => project.sellerId === currentUserId.value)
+})
+
+const otherProjects = computed(() => {
+  if (!currentUserId.value) return projects.value
+  return projects.value.filter(project => project.sellerId !== currentUserId.value)
+})
 
 const totalMaterials = computed(() =>
   projects.value.reduce((sum, p) => sum + p.totalKg, 0)
@@ -158,9 +280,10 @@ const addProject = async () => {
   addProjectMessage.value = ''
 
   if (!import.meta.client) return
-  const userRaw = localStorage.getItem('sortifyUser')
+  const userRaw = sessionStorage.getItem('sortifyUser')
   if (!userRaw) {
     addProjectMessage.value = 'Please log in before adding projects.'
+    syncSessionUser()
     return
   }
   const user = JSON.parse(userRaw)
@@ -187,7 +310,6 @@ const addProject = async () => {
   addProjectMessage.value = 'Project added to DB. Refresh page to see it in list.'
   newProjectTitle.value = ''
   newProjectLocation.value = ''
-  newProjectSellerId.value = 1
 }
 </script>
 
@@ -251,6 +373,29 @@ const addProject = async () => {
 }
 .cat__pill strong { color: #1a1a1a; }
 .cat__pill--green { background: #e6f4ea; border-color: #b7e4c7; color: #1e7e34; }
+
+.cat__section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.cat__section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #1f2a1f;
+}
+
+.cat__section-head h2 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.cat__empty {
+  margin: 0;
+  color: #6b756d;
+}
 
 /* ──── Grid ──── */
 .cat__grid {

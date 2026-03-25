@@ -32,7 +32,7 @@
 import { ref, defineProps, defineEmits } from 'vue'
 
 const props = defineProps<{ show: boolean }>()
-const emit = defineEmits(['close', 'show-signup'])
+const emit = defineEmits(['close', 'show-signup', 'logged-in'])
 
 const email = ref('')
 const password = ref('')
@@ -63,9 +63,11 @@ async function submitForm() {
   }
 
   if (import.meta.client) {
-    localStorage.setItem('sortifyUser', JSON.stringify(result.user))
+    sessionStorage.setItem('sortifyUser', JSON.stringify(result.user))
+    window.dispatchEvent(new Event('sortify-auth-changed'))
   }
 
+  emit('logged-in', result.user)
   closePopup()
 }
 

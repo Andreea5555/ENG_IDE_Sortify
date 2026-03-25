@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import db from '~/../db/db.json'
 
 const units = db.units
-const projects = db.projects
+const allProjects = db.projects
 
 const materialName = ref('')
 const unitId = ref<number | null>(null)
@@ -13,6 +13,73 @@ const projectId = ref<number | null>(null)
 const photo = ref<File | null>(null)
 const description = ref('')
 const feedbackMessage = ref('')
+const route = useRoute()
+const currentUserId = ref<number | null>(null)
+
+const projects = computed(() => {
+  if (!currentUserId.value) {
+    return []
+  }
+
+  return allProjects.filter(project => project.seller_id === currentUserId.value)
+})
+
+function syncSessionUser() {
+  if (!import.meta.client) return
+  const userRaw = sessionStorage.getItem('sortifyUser')
+  if (!userRaw) {
+    currentUserId.value = null
+    return
+  }
+
+  try {
+    const user = JSON.parse(userRaw)
+    currentUserId.value = Number.isFinite(Number(user.id)) ? Number(user.id) : null
+  } catch {
+    currentUserId.value = null
+  }
+}
+
+function applyProjectFromQuery() {
+  const rawProjectId = route.query.projectId
+  const projectIdFromQuery = Number(Array.isArray(rawProjectId) ? rawProjectId[0] : rawProjectId)
+
+  if (!Number.isFinite(projectIdFromQuery)) {
+    return
+  }
+
+  const hasMatchingProject = projects.value.some(project => project.id === projectIdFromQuery)
+  if (hasMatchingProject) {
+    projectId.value = projectIdFromQuery
+  }
+}
+
+onMounted(() => {
+  syncSessionUser()
+  applyProjectFromQuery()
+  if (import.meta.client) {
+    window.addEventListener('sortify-auth-changed', syncSessionUser)
+    window.addEventListener('storage', syncSessionUser)
+  }
+})
+
+onBeforeUnmount(() => {
+  if (!import.meta.client) return
+  window.removeEventListener('sortify-auth-changed', syncSessionUser)
+  window.removeEventListener('storage', syncSessionUser)
+})
+
+watch(projects, () => {
+  if (!projectId.value) {
+    applyProjectFromQuery()
+    return
+  }
+
+  const stillOwned = projects.value.some(project => project.id === projectId.value)
+  if (!stillOwned) {
+    projectId.value = null
+  }
+})
 
 const handleFileUpload = (event: Event) => {
   const target = event.target as HTMLInputElement
@@ -23,12 +90,18 @@ const handleFileUpload = (event: Event) => {
 
 const saveMaterial = async () => {
   if (!import.meta.client) return
-  const userRaw = localStorage.getItem('sortifyUser')
+  const userRaw = sessionStorage.getItem('sortifyUser')
   if (!userRaw) {
     feedbackMessage.value = 'Please log in before adding materials.'
     return
   }
   const user = JSON.parse(userRaw)
+
+  const ownsProject = projects.value.some(project => project.id === projectId.value)
+  if (!ownsProject) {
+    feedbackMessage.value = 'You can add materials only to your own projects.'
+    return
+  }
 
   if (!photo.value) {
     feedbackMessage.value = 'Please select a photo.'

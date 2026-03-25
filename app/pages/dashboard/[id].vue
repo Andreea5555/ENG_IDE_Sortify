@@ -6,6 +6,9 @@
       <section class="det__hero">
         <h1 class="det__title">{{ project.title }}</h1>
         <p class="det__meta">📍 {{ project.location }} · 🗓️ {{ createdAt }}</p>
+        <NuxtLink :to="`/add-material?projectId=${project.id}`" class="det__add-material-btn">
+          Add material to this project
+        </NuxtLink>
       </section>
 
       <section class="det__stats">
@@ -137,6 +140,17 @@ const createdAt = computed(() => {
 .det__meta {
   margin-top: 0.5rem;
   opacity: 0.9;
+}
+
+.det__add-material-btn {
+  display: inline-flex;
+  margin-top: 1rem;
+  background: #fdf7ef;
+  color: #2f7a3e;
+  text-decoration: none;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 0.55rem 1rem;
 }
 
 .det__stats {

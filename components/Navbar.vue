@@ -17,8 +17,14 @@
       </nav>
 
       <div class="navbar__actions">
-        <button class="navbar__login" type="button" @click="$emit('show-login'); handleNav()">Log in</button>
-        <button class="btn" type="button" @click="$emit('show-signup')">Sign Up</button>
+        <template v-if="isLoggedIn">
+          <span class="navbar__user" :title="userEmail">{{ userEmail }}</span>
+          <button class="navbar__login" type="button" @click="$emit('logout'); handleNav()">Log out</button>
+        </template>
+        <template v-else>
+          <button class="navbar__login" type="button" @click="$emit('show-login'); handleNav()">Log in</button>
+          <button class="btn" type="button" @click="$emit('show-signup')">Sign Up</button>
+        </template>
       </div>
 
       <button
@@ -39,7 +45,12 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-defineEmits(['show-signup', 'show-login'])
+defineProps<{
+  isLoggedIn?: boolean
+  userEmail?: string
+}>()
+
+defineEmits(['show-signup', 'show-login', 'logout'])
 
 const isMenuOpen = ref(false)
 
@@ -142,6 +153,16 @@ function handleNav() {
   align-items: center;
   gap: 0.75rem;
   margin-left: auto;
+}
+
+.navbar__user {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 600;
+  font-size: 0.85rem;
 }
 
 .navbar__login {

@@ -102,7 +102,7 @@ const reserveMaterials = async () => {
   if (!listing.value) return
 
   if (!import.meta.client) return
-  const userRaw = localStorage.getItem('sortifyUser')
+  const userRaw = sessionStorage.getItem('sortifyUser')
   if (!userRaw) {
     reservationMessage.value = 'Please sign up or log in first.'
     return

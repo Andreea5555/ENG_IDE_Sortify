@@ -104,6 +104,17 @@
       "photo": "/images/d57ea216-4fdc-4d72-8a11-9a07d04daed1-1b4858fbd24046a81cace5ee18d19c868262b91f.jpg",
       "description": "jhjk",
       "project_id": 5
+    },
+    {
+      "id": 9,
+      "name": "cucu",
+      "unit_id": 1,
+      "quantity": 3,
+      "status": "available",
+      "condition": "Used - Good",
+      "photo": "/images/09e7fd3b-4112-4657-a1d6-71d267472a57-biggie_task2.png",
+      "description": "cucu",
+      "project_id": 6
     }
   ],
   "projects": [
@@ -159,6 +170,15 @@
       "seller_id": 1,
       "creation_date": "2026-03-16T16:17:09.539Z",
       "statistics_id": 5
+    },
+    {
+      "id": 6,
+      "title": "gkgkgj",
+      "location": "Brasov",
+      "photo": "/images/projects/project-1.jpg",
+      "seller_id": 3,
+      "creation_date": "2026-03-25T07:40:55.261Z",
+      "statistics_id": 6
     }
   ],
   "reservations": [
@@ -242,6 +262,13 @@
     },
     {
       "id": 5,
+      "reused": 0,
+      "recycled": 0,
+      "waste": 0,
+      "co2_saved": 0
+    },
+    {
+      "id": 6,
       "reused": 0,
       "recycled": 0,
       "waste": 0,

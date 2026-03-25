@@ -61,6 +61,15 @@ export default defineEventHandler(async (event) => {
       throw new Error('Invalid numeric fields')
     }
 
+    const targetProject = (db.projects || []).find((project: any) => project.id === parsedProjectId)
+    if (!targetProject) {
+      throw new Error('Selected project does not exist')
+    }
+
+    if (targetProject.seller_id !== authenticatedUser.id) {
+      throw new Error('You can add materials only to your own projects')
+    }
+
     const newMaterial = {
       id: db.materials.length + 1,
       name: materialData.name,

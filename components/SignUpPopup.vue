@@ -130,7 +130,8 @@ async function submitForm() {
   }
 
   if (import.meta.client) {
-    localStorage.setItem('sortifyUser', JSON.stringify(result.user))
+    sessionStorage.setItem('sortifyUser', JSON.stringify(result.user))
+    window.dispatchEvent(new Event('sortify-auth-changed'))
   }
 
   emit('signed-up')
