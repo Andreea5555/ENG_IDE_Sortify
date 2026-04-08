@@ -12,6 +12,7 @@ export type MarketplaceListing = {
   description: string
   availableUntil: string
   sellerEmail: string
+  sellerId: number
 }
 
 export const getListings = (): MarketplaceListing[] => {
@@ -27,15 +28,16 @@ export const getListings = (): MarketplaceListing[] => {
     return {
       id: material.id,
       title: material.name,
-      price: 'Price on request', // Placeholder as price is not in the db
+      price: `${Number(material.price_dkk || 0).toLocaleString('da-DK')} DKK`,
       quantity: `${material.quantity} ${unit ? unit.value : ''}`,
       status: (material.status || 'available') as MarketplaceListing['status'],
       location: project ? project.location : 'Unknown',
       condition: material.condition,
-      image: material.photo,
+      image: material.photo || project?.photo || '/images/projects/project-1.jpg',
       description: material.description,
       availableUntil: availableUntil,
-      sellerEmail: `seller${project ? project.seller_id : ''}@sortify.dk` // Placeholder
+      sellerEmail: `seller${project ? project.seller_id : ''}@sortify.dk`, // Placeholder
+      sellerId: Number(project?.seller_id || 0)
     };
   });
 };

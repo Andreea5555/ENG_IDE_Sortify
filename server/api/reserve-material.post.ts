@@ -45,6 +45,10 @@ export default defineEventHandler(async (event) => {
       throw new Error('Project not found for material')
     }
 
+    if (project.seller_id === authenticatedUser.id) {
+      throw new Error('You cannot reserve your own material')
+    }
+
     const newReservation = {
       id: db.reservations.length ? Math.max(...db.reservations.map((entry: any) => entry.id)) + 1 : 1,
       seller_id: project.seller_id,

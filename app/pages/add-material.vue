@@ -8,6 +8,7 @@ const allProjects = db.projects
 const materialName = ref('')
 const unitId = ref<number | null>(null)
 const quantity = ref<number | null>(null)
+const priceDkk = ref<number | null>(null)
 const condition = ref('')
 const projectId = ref<number | null>(null)
 const photo = ref<File | null>(null)
@@ -112,6 +113,7 @@ const saveMaterial = async () => {
   formData.append('name', materialName.value)
   formData.append('unit_id', unitId.value?.toString() || '')
   formData.append('quantity', quantity.value?.toString() || '')
+  formData.append('price_dkk', priceDkk.value?.toString() || '')
   formData.append('condition', condition.value)
   formData.append('project_id', projectId.value?.toString() || '')
   formData.append('photo', photo.value)
@@ -134,6 +136,7 @@ const saveMaterial = async () => {
       materialName.value = ''
       unitId.value = null
       quantity.value = null
+      priceDkk.value = null
       condition.value = ''
       projectId.value = null
       photo.value = null
@@ -190,6 +193,20 @@ const saveMaterial = async () => {
         </div>
 
         <div class="form-field">
+          <label for="material-price">Price (DKK per unit)</label>
+          <input
+            id="material-price"
+            v-model="priceDkk"
+            name="material-price"
+            type="number"
+            min="0"
+            step="1"
+            placeholder="0"
+            required
+          />
+        </div>
+
+        <div class="form-field">
           <label for="material-condition">Condition</label>
           <select id="material-condition" v-model="condition" name="material-condition" required>
             <option value="" disabled selected>Select condition</option>
@@ -210,13 +227,13 @@ const saveMaterial = async () => {
         </div>
 
         <div class="form-field form-field--full">
-          <label for="material-description">Description</label>
+          <label for="material-description">Description (include sizes/specs)</label>
           <textarea
             id="material-description"
             v-model="description"
             name="material-description"
             rows="4"
-            placeholder="Describe the material..."
+            placeholder="Describe dimensions and specs, e.g. 240x115x75 mm, length 2.4 m, thickness 12 mm..."
             required
           ></textarea>
         </div>

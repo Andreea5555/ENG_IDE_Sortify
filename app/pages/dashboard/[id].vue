@@ -6,7 +6,7 @@
       <section class="det__hero">
         <h1 class="det__title">{{ project.title }}</h1>
         <p class="det__meta">📍 {{ project.location }} · 🗓️ {{ createdAt }}</p>
-        <NuxtLink :to="`/add-material?projectId=${project.id}`" class="det__add-material-btn">
+        <NuxtLink v-if="canAddMaterials" :to="`/add-material?projectId=${project.id}`" class="det__add-material-btn">
           Add material to this project
         </NuxtLink>
       </section>
@@ -32,6 +32,8 @@
               <th>#</th>
               <th>Name</th>
               <th>Quantity</th>
+              <th>Price / unit</th>
+              <th>Total value</th>
               <th>Condition</th>
             </tr>
           </thead>
@@ -40,6 +42,8 @@
               <td>{{ index + 1 }}</td>
               <td>{{ entry.name }}</td>
               <td>{{ entry.quantityLabel }}</td>
+              <td>{{ formatCurrency(entry.price_dkk || 0) }}</td>
+              <td>{{ formatCurrency(entry.totalValueDkk) }}</td>
               <td>{{ entry.condition }}</td>
             </tr>
           </tbody>
@@ -50,18 +54,40 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import db from '~/../db/db.json'
 
 const route = useRoute()
 const projectId = Number(route.params.id)
+const currentUserId = ref<number | null>(null)
 
 const project = computed(() => db.projects.find((entry) => entry.id === projectId) || null)
 
 if (!project.value) {
   throw createError({ statusCode: 404, statusMessage: 'Project not found' })
 }
+
+onMounted(() => {
+  if (!import.meta.client) return
+  const userRaw = sessionStorage.getItem('sortifyUser')
+  if (!userRaw) {
+    currentUserId.value = null
+    return
+  }
+
+  try {
+    const user = JSON.parse(userRaw)
+    currentUserId.value = Number.isFinite(Number(user.id)) ? Number(user.id) : null
+  } catch {
+    currentUserId.value = null
+  }
+})
+
+const canAddMaterials = computed(() => {
+  if (!project.value || !currentUserId.value) return false
+  return Number(project.value.seller_id) === Number(currentUserId.value)
+})
 
 const unitsById = computed(() => {
   return Object.fromEntries(db.units.map((unit) => [unit.id, unit.value])) as Record<number, string>
@@ -72,9 +98,14 @@ const materials = computed(() => {
     .filter((entry) => entry.project_id === projectId)
     .map((entry) => ({
       ...entry,
-      quantityLabel: `${entry.quantity} ${unitsById.value[entry.unit_id] || ''}`.trim()
+      quantityLabel: `${entry.quantity} ${unitsById.value[entry.unit_id] || ''}`.trim(),
+      totalValueDkk: Number(entry.quantity || 0) * Number(entry.price_dkk || 0)
     }))
 })
+
+const projectValueDkk = computed(() =>
+  materials.value.reduce((sum, entry) => sum + entry.totalValueDkk, 0)
+)
 
 const stats = computed(() => {
   if (!project.value) {
@@ -93,10 +124,12 @@ const statCards = computed(() => [
   { key: 'reused', label: 'Reused', value: stats.value.reused, unit: 'kg' },
   { key: 'recycled', label: 'Recycled', value: stats.value.recycled, unit: 'kg' },
   { key: 'waste', label: 'Waste', value: stats.value.waste, unit: 'kg' },
-  { key: 'co2', label: 'CO₂ Saved', value: stats.value.co2_saved, unit: 't' }
+  { key: 'co2', label: 'CO₂ Saved', value: stats.value.co2_saved, unit: 't' },
+  { key: 'value', label: 'Project Value', value: projectValueDkk.value, unit: 'DKK' }
 ])
 
 const formatNumber = (value: number) => value.toLocaleString('en-US')
+const formatCurrency = (value: number) => `${Math.round(value).toLocaleString('da-DK')} DKK`
 
 const createdAt = computed(() => {
   if (!project.value) return ''

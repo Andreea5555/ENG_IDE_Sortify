@@ -14,6 +14,7 @@
         <div class="cat__pills">
           <span class="cat__pill"><strong>{{ projects.length }}</strong> Projects</span>
           <span class="cat__pill"><strong>{{ totalMaterials.toLocaleString() }}</strong> kg Total</span>
+          <span class="cat__pill"><strong>{{ formatDkk(totalProjectValueDkk) }}</strong> Total Value</span>
           <span class="cat__pill cat__pill--green"><strong>{{ activeCount }}</strong> Active</span>
         </div>
       </section>
@@ -78,6 +79,9 @@
                     </span>
                     <span class="cat__card-stat">
                       <strong>{{ p.materialCount }}</strong> materials
+                    </span>
+                    <span class="cat__card-stat">
+                      <strong>{{ formatDkk(p.totalValueDkk) }}</strong>
                     </span>
                   </div>
 
@@ -147,6 +151,9 @@
                   <span class="cat__card-stat">
                     <strong>{{ p.materialCount }}</strong> materials
                   </span>
+                  <span class="cat__card-stat">
+                    <strong>{{ formatDkk(p.totalValueDkk) }}</strong>
+                  </span>
                 </div>
 
                 <p class="cat__card-date">Started {{ p.started }}</p>
@@ -182,6 +189,7 @@ export interface Project {
   status: 'active' | 'completed' | 'planned'
   started: string
   totalKg: number
+  totalValueDkk: number
   materialCount: number
   photo: string
   accent: string
@@ -190,6 +198,7 @@ export interface Project {
 const projectsData = db.projects.map(p => {
   const materials = db.materials.filter(m => m.project_id === p.id);
   const totalWeight = materials.reduce((acc, m) => acc + (m.quantity || 0), 0); // Assuming quantity is in kg for simplicity
+  const totalValueDkk = materials.reduce((acc, m) => acc + (Number(m.quantity || 0) * Number(m.price_dkk || 0)), 0)
   const creationDate = new Date(p.creation_date);
   const now = new Date();
   const diffTime = Math.abs(now.getTime() - creationDate.getTime());
@@ -205,6 +214,7 @@ const projectsData = db.projects.map(p => {
     status: status,
     started: creationDate.toLocaleDateString(),
     totalKg: totalWeight,
+    totalValueDkk,
     materialCount: materials.length,
     photo: p.photo || '/images/projects/project-1.jpg',
     accent: ['#4A90E2', '#50E3C2', '#F5A623', '#D0021B', '#BD10E0', '#9013FE'][p.id % 6]
@@ -272,9 +282,14 @@ const otherProjects = computed(() => {
 const totalMaterials = computed(() =>
   projects.value.reduce((sum, p) => sum + p.totalKg, 0)
 )
+const totalProjectValueDkk = computed(() =>
+  projects.value.reduce((sum, p) => sum + p.totalValueDkk, 0)
+)
 const activeCount = computed(() =>
   projects.value.filter(p => p.status === 'active').length
 )
+
+const formatDkk = (value: number) => `${Math.round(value).toLocaleString('da-DK')} DKK`
 
 const addProject = async () => {
   addProjectMessage.value = ''

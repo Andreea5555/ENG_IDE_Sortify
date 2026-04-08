@@ -39,7 +39,7 @@ export default defineEventHandler(async (event) => {
       throw new Error('Photo is missing')
     }
 
-    if (!materialData.name || !materialData.unit_id || !materialData.quantity || !materialData.condition || !materialData.project_id) {
+    if (!materialData.name || !materialData.unit_id || !materialData.quantity || !materialData.condition || !materialData.project_id || !materialData.price_dkk) {
       throw new Error('Missing required material fields')
     }
 
@@ -57,8 +57,13 @@ export default defineEventHandler(async (event) => {
     const parsedUnitId = Number.parseInt(materialData.unit_id, 10)
     const parsedQuantity = Number.parseInt(materialData.quantity, 10)
     const parsedProjectId = Number.parseInt(materialData.project_id, 10)
-    if (Number.isNaN(parsedUnitId) || Number.isNaN(parsedQuantity) || Number.isNaN(parsedProjectId)) {
+    const parsedPriceDkk = Number.parseFloat(materialData.price_dkk)
+    if (Number.isNaN(parsedUnitId) || Number.isNaN(parsedQuantity) || Number.isNaN(parsedProjectId) || Number.isNaN(parsedPriceDkk)) {
       throw new Error('Invalid numeric fields')
+    }
+
+    if (parsedPriceDkk < 0) {
+      throw new Error('Price must be greater than or equal to 0')
     }
 
     const targetProject = (db.projects || []).find((project: any) => project.id === parsedProjectId)
@@ -75,6 +80,7 @@ export default defineEventHandler(async (event) => {
       name: materialData.name,
       unit_id: parsedUnitId,
       quantity: parsedQuantity,
+      price_dkk: parsedPriceDkk,
       status: 'available',
       condition: materialData.condition,
       photo: photoPath,

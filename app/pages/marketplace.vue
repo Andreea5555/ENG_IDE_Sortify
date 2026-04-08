@@ -117,7 +117,7 @@
               class="mp__card"
             >
               <div class="mp__card-img" :class="{ 'mp__card-img--placeholder': !item.image }">
-                <img v-if="item.image" :src="item.image" :alt="item.title" class="mp__card-photo" />
+                <img v-if="item.image" :src="item.image" :alt="item.title" class="mp__card-photo" @error="onCardImageError" />
                 <span class="mp__card-badge" :class="'mp__card-badge--' + item.status">
                   {{ item.status }}
                 </span>
@@ -271,6 +271,16 @@ interface Material {
 
 const ITEMS_PER_PAGE = 6
 const showCount = ref(ITEMS_PER_PAGE)
+const fallbackMarketplaceImage = '/images/projects/project-1.jpg'
+
+function onCardImageError(event: Event) {
+  const target = event.target as HTMLImageElement
+  if (!target) return
+
+  if (target.getAttribute('src') !== fallbackMarketplaceImage) {
+    target.setAttribute('src', fallbackMarketplaceImage)
+  }
+}
 
 function getCategory(name: string): Material['category'] {
   const value = name.toLowerCase()
@@ -296,6 +306,7 @@ const materials = computed<Material[]>(() => {
     const project = db.projects.find((p) => p.id === material.project_id)
     const unit = db.units.find((u) => u.id === material.unit_id)
     const location = project?.location || 'Unknown'
+    const image = (material.photo && material.photo.trim()) || (project?.photo && project.photo.trim()) || fallbackMarketplaceImage
 
     return {
       id: material.id,
@@ -307,7 +318,7 @@ const materials = computed<Material[]>(() => {
       unit: unit?.value || 'pcs',
       availabilityDate: project?.creation_date?.slice(0, 10) || '2026-01-01',
       status: (material.status || 'available') as Material['status'],
-      image: material.photo || ''
+      image
     }
   })
 })

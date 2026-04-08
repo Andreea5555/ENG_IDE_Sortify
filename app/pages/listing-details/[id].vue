@@ -57,7 +57,15 @@
 
       <div class="detail-card__actions">
         <a class="btn btn--ghost" :href="contactHref">Contact Seller</a>
-        <button type="button" class="btn btn--solid" @click="reserveMaterials">Reserve Materials</button>
+        <button
+          type="button"
+          class="btn btn--solid"
+          :class="{ 'btn--disabled': !canReserve }"
+          :disabled="!canReserve"
+          @click="reserveMaterials"
+        >
+          {{ reserveButtonLabel }}
+        </button>
       </div>
       <p v-if="reservationMessage" class="detail-card__message">{{ reservationMessage }}</p>
     </div>
@@ -74,10 +82,45 @@ const route = useRoute()
 
 const listing = computed(() => listings.find(item => item.id === Number(route.params.id)))
 const reservationMessage = ref('')
+const currentUserId = ref<number | null>(null)
+const materialStatus = ref<'available' | 'reserved' | 'sold'>('available')
 
 if (!listing.value) {
   throw createError({ statusCode: 404, statusMessage: 'Listing not found' })
 }
+
+materialStatus.value = listing.value.status
+
+if (import.meta.client) {
+  const userRaw = sessionStorage.getItem('sortifyUser')
+  if (userRaw) {
+    try {
+      const user = JSON.parse(userRaw)
+      currentUserId.value = Number.isFinite(Number(user.id)) ? Number(user.id) : null
+    } catch {
+      currentUserId.value = null
+    }
+  }
+}
+
+const isOwnMaterial = computed(() => {
+  if (!listing.value || !currentUserId.value) return false
+  return Number(listing.value.sellerId) === Number(currentUserId.value)
+})
+
+const canReserve = computed(() => {
+  if (!currentUserId.value) return false
+  if (isOwnMaterial.value) return false
+  return materialStatus.value === 'available'
+})
+
+const reserveButtonLabel = computed(() => {
+  if (!currentUserId.value) return 'Log in to reserve'
+  if (isOwnMaterial.value) return 'Cannot reserve your own material'
+  if (materialStatus.value === 'reserved') return 'Already reserved'
+  if (materialStatus.value === 'sold') return 'Already sold'
+  return 'Reserve Materials'
+})
 
 const contactHref = computed(() => {
   if (!listing.value) {
@@ -108,6 +151,16 @@ const reserveMaterials = async () => {
     return
   }
 
+  if (isOwnMaterial.value) {
+    reservationMessage.value = 'You cannot reserve your own material.'
+    return
+  }
+
+  if (!canReserve.value) {
+    reservationMessage.value = 'This material is no longer available for reservation.'
+    return
+  }
+
   const user = JSON.parse(userRaw)
   const response = await fetch('/api/reserve-material', {
     method: 'POST',
@@ -121,9 +174,13 @@ const reserveMaterials = async () => {
   })
 
   const result = await response.json()
-  reservationMessage.value = result.success
-    ? 'Reservation submitted and saved in DB.'
-    : `Reservation failed: ${result.message}`
+  if (result.success) {
+    materialStatus.value = 'reserved'
+    reservationMessage.value = 'Reserved successfully. The material is now marked as reserved.'
+    return
+  }
+
+  reservationMessage.value = `Reservation failed: ${result.message}`
 }
 </script>
 
@@ -318,6 +375,12 @@ const reserveMaterials = async () => {
   background: #2f7a3e;
   color: #fff;
   box-shadow: 0 12px 30px rgba(47, 122, 62, 0.25);
+}
+
+.btn--disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
 }
 
 .btn:hover {
