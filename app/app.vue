@@ -1,13 +1,19 @@
 <template>
   <div class="app-wrapper">
-    <Navbar @show-signup="showSignUp = true" @show-login="onShowLogin">
+    <Navbar
+      :is-logged-in="Boolean(currentUser)"
+      :user-email="currentUser?.email || ''"
+      @show-signup="showSignUp = true"
+      @show-login="onShowLogin"
+      @logout="onLogout"
+    >
       <template #logo>
         <!-- Use the user-provided Logo.png from assets (imported as `logo`) -->
         <img :src="logo" alt="Sortify logo" style="width:40px;height:40px;border-radius:6px;object-fit:cover" />
       </template>
     </Navbar>
-    <SignUpPopup :show="showSignUp" @close="onSignUpClose" @signed-up="showCongrats = true" @show-login="onShowLogin" />
-    <LoginPopup :show="showLogin" @close="onLoginClose" @show-signup="onShowSignUp" />
+    <SignUpPopup :show="showSignUp" @close="onSignUpClose" @signed-up="onSignedUp" @show-login="onShowLogin" />
+    <LoginPopup :show="showLogin" @close="onLoginClose" @show-signup="onShowSignUp" @logged-in="onLoggedIn" />
     <transition name="congrats-fade">
       <div v-if="showCongrats" class="congrats-popup">
         <div class="congrats-content">
@@ -27,7 +33,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 import Navbar from '../components/Navbar.vue'
 import AppFooter from '../components/AppFooter.vue'
 import logo from '../assets/images/Logo.png'
@@ -37,6 +43,37 @@ import LoginPopup from '../components/LoginPopup.vue'
 const showSignUp = ref(false)
 const showCongrats = ref(false)
 const showLogin = ref(false)
+const currentUser = ref(null)
+
+function readSessionUser() {
+  if (!import.meta.client) return null
+  const stored = sessionStorage.getItem('sortifyUser')
+  if (!stored) return null
+
+  try {
+    return JSON.parse(stored)
+  } catch {
+    sessionStorage.removeItem('sortifyUser')
+    return null
+  }
+}
+
+onMounted(() => {
+  currentUser.value = readSessionUser()
+  if (import.meta.client) {
+    window.addEventListener('sortify-auth-changed', syncSessionUser)
+  }
+})
+
+onBeforeUnmount(() => {
+  if (import.meta.client) {
+    window.removeEventListener('sortify-auth-changed', syncSessionUser)
+  }
+})
+
+function syncSessionUser() {
+  currentUser.value = readSessionUser()
+}
 
 function onSignUpClose() {
   showSignUp.value = false
@@ -44,6 +81,12 @@ function onSignUpClose() {
     setTimeout(() => { showCongrats.value = false }, 2000)
   }
 }
+
+function onSignedUp() {
+  showCongrats.value = true
+  syncSessionUser()
+}
+
 function onShowLogin() {
   showSignUp.value = false
   showLogin.value = true
@@ -51,6 +94,20 @@ function onShowLogin() {
 function onLoginClose() {
   showLogin.value = false
 }
+
+function onLoggedIn(user) {
+  currentUser.value = user
+  showLogin.value = false
+}
+
+function onLogout() {
+  if (import.meta.client) {
+    sessionStorage.removeItem('sortifyUser')
+    window.dispatchEvent(new Event('sortify-auth-changed'))
+  }
+  currentUser.value = null
+}
+
 function onShowSignUp() {
   showLogin.value = false
   showSignUp.value = true

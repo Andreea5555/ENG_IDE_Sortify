@@ -43,26 +43,84 @@
         </div>
       </div>
 
+      <div class="detail-card__map">
+        <h3>Location on map</h3>
+        <iframe
+          :src="mapEmbedUrl"
+          class="detail-map"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          title="Material location map"
+        ></iframe>
+        <a class="detail-map-link" :href="mapOpenUrl" target="_blank" rel="noopener">Open in maps ↗</a>
+      </div>
+
       <div class="detail-card__actions">
         <a class="btn btn--ghost" :href="contactHref">Contact Seller</a>
-        <button type="button" class="btn btn--solid">Reserve Materials</button>
+        <button
+          type="button"
+          class="btn btn--solid"
+          :class="{ 'btn--disabled': !canReserve }"
+          :disabled="!canReserve"
+          @click="reserveMaterials"
+        >
+          {{ reserveButtonLabel }}
+        </button>
       </div>
+      <p v-if="reservationMessage" class="detail-card__message">{{ reservationMessage }}</p>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { createError } from 'h3'
-import { listings } from '../../data/listings'
+import { getListings } from '~/data/db'
 
+const listings = getListings()
 const route = useRoute()
 
 const listing = computed(() => listings.find(item => item.id === Number(route.params.id)))
+const reservationMessage = ref('')
+const currentUserId = ref<number | null>(null)
+const materialStatus = ref<'available' | 'reserved' | 'sold'>('available')
 
 if (!listing.value) {
   throw createError({ statusCode: 404, statusMessage: 'Listing not found' })
 }
+
+materialStatus.value = listing.value.status
+
+if (import.meta.client) {
+  const userRaw = sessionStorage.getItem('sortifyUser')
+  if (userRaw) {
+    try {
+      const user = JSON.parse(userRaw)
+      currentUserId.value = Number.isFinite(Number(user.id)) ? Number(user.id) : null
+    } catch {
+      currentUserId.value = null
+    }
+  }
+}
+
+const isOwnMaterial = computed(() => {
+  if (!listing.value || !currentUserId.value) return false
+  return Number(listing.value.sellerId) === Number(currentUserId.value)
+})
+
+const canReserve = computed(() => {
+  if (!currentUserId.value) return false
+  if (isOwnMaterial.value) return false
+  return materialStatus.value === 'available'
+})
+
+const reserveButtonLabel = computed(() => {
+  if (!currentUserId.value) return 'Log in to reserve'
+  if (isOwnMaterial.value) return 'Cannot reserve your own material'
+  if (materialStatus.value === 'reserved') return 'Already reserved'
+  if (materialStatus.value === 'sold') return 'Already sold'
+  return 'Reserve Materials'
+})
 
 const contactHref = computed(() => {
   if (!listing.value) {
@@ -71,6 +129,59 @@ const contactHref = computed(() => {
   const subject = encodeURIComponent(`Interest in ${listing.value.title}`)
   return `mailto:${listing.value.sellerEmail}?subject=${subject}`
 })
+
+const mapOpenUrl = computed(() => {
+  if (!listing.value) return '#'
+  return `https://www.google.com/maps?q=${encodeURIComponent(listing.value.location)}`
+})
+
+const mapEmbedUrl = computed(() => {
+  if (!listing.value) return ''
+  return `https://www.google.com/maps?q=${encodeURIComponent(listing.value.location)}&output=embed`
+})
+
+const reserveMaterials = async () => {
+  reservationMessage.value = ''
+  if (!listing.value) return
+
+  if (!import.meta.client) return
+  const userRaw = sessionStorage.getItem('sortifyUser')
+  if (!userRaw) {
+    reservationMessage.value = 'Please sign up or log in first.'
+    return
+  }
+
+  if (isOwnMaterial.value) {
+    reservationMessage.value = 'You cannot reserve your own material.'
+    return
+  }
+
+  if (!canReserve.value) {
+    reservationMessage.value = 'This material is no longer available for reservation.'
+    return
+  }
+
+  const user = JSON.parse(userRaw)
+  const response = await fetch('/api/reserve-material', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-user-id': String(user.id)
+    },
+    body: JSON.stringify({
+      materialId: listing.value.id
+    })
+  })
+
+  const result = await response.json()
+  if (result.success) {
+    materialStatus.value = 'reserved'
+    reservationMessage.value = 'Reserved successfully. The material is now marked as reserved.'
+    return
+  }
+
+  reservationMessage.value = `Reservation failed: ${result.message}`
+}
 </script>
 
 <style scoped>
@@ -206,6 +317,40 @@ const contactHref = computed(() => {
   padding: 1.75rem 2rem 2.25rem;
 }
 
+.detail-card__map {
+  padding: 1.75rem 2rem;
+  border-bottom: 1px solid rgba(31, 42, 31, 0.08);
+}
+
+.detail-card__map h3 {
+  margin: 0 0 0.75rem;
+}
+
+.detail-map {
+  width: 100%;
+  height: 320px;
+  border: 1px solid rgba(31, 42, 31, 0.15);
+  border-radius: 12px;
+}
+
+.detail-map-link {
+  display: inline-block;
+  margin-top: 0.6rem;
+  color: #2f7a3e;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.detail-map-link:hover {
+  text-decoration: underline;
+}
+
+.detail-card__message {
+  margin: 0 2rem 1.5rem;
+  color: #2f7a3e;
+  font-weight: 600;
+}
+
 .btn {
   border-radius: 999px;
   padding: 0.85rem 2.5rem;
@@ -230,6 +375,12 @@ const contactHref = computed(() => {
   background: #2f7a3e;
   color: #fff;
   box-shadow: 0 12px 30px rgba(47, 122, 62, 0.25);
+}
+
+.btn--disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
 }
 
 .btn:hover {

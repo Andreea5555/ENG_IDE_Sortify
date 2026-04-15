@@ -1,0 +1,197 @@
+{
+  "units": [
+    {
+      "id": 1,
+      "value": "pcs"
+    },
+    {
+      "id": 2,
+      "value": "kgs"
+    },
+    {
+      "id": 3,
+      "value": "liters"
+    },
+    {
+      "id": 4,
+      "value": "lbs"
+    }
+  ],
+  "materials": [
+    {
+      "id": 1,
+      "name": "FROM DB - Reclaimed Bricks",
+      "quantity": 500,
+      "unit_id": 1,
+      "price_dkk": 12,
+      "status": "available",
+      "description": "High-quality reclaimed bricks from a historic building. Approx. size 240 x 115 x 75 mm per brick, average weight 2.4 kg each. Suitable for feature walls or paving.",
+      "photo": "/images/from-db-reclaimed-bricks.png",
+      "condition": "Used - Good",
+      "project_id": 1
+    },
+    {
+      "id": 2,
+      "name": "FROM DB - Steel Beams",
+      "quantity": 10,
+      "unit_id": 1,
+      "price_dkk": 850,
+      "status": "available",
+      "description": "Structural steel I-beams in mixed lengths. Typical section 200 x 100 mm, lengths between 3.0 m and 5.5 m, approx. 24 kg per meter.",
+      "photo": "/images/from-db-steel-beams.png",
+      "condition": "Used - Excellent",
+      "project_id": 1
+    },
+    {
+      "id": 3,
+      "name": "FROM DB - Timber Planks",
+      "quantity": 64,
+      "unit_id": 1,
+      "price_dkk": 95,
+      "status": "available",
+      "description": "Reclaimed timber planks. Typical board size 38 x 140 mm, standard length around 2.4 m, moisture content approx. 12-15%.",
+      "photo": "/images/from-db-timber-planks.png",
+      "condition": "Used - Good",
+      "project_id": 2
+    },
+    {
+      "id": 4,
+      "name": "FROM DB - Concrete Blocks",
+      "quantity": 320,
+      "unit_id": 1,
+      "price_dkk": 18,
+      "status": "available",
+      "description": "Concrete blocks from demolition recovery. Standard block size 390 x 190 x 190 mm, estimated compressive class around C20/25.",
+      "photo": "/images/from-db-concrete-blocks.png",
+      "condition": "Used - Good",
+      "project_id": 2
+    },
+    {
+      "id": 5,
+      "name": "FROM DB - Copper Pipes",
+      "quantity": 180,
+      "unit_id": 1,
+      "price_dkk": 55,
+      "status": "available",
+      "description": "Recovered copper pipe lengths. Mixed diameters 15 mm, 22 mm, and 28 mm, average segment length approx. 1.8 m, wall thickness near 1.0 mm.",
+      "photo": "/images/from-db-copper-pipes.png",
+      "condition": "Used - Excellent",
+      "project_id": 3
+    },
+    {
+      "id": 6,
+      "name": "FROM DB - Roof Insulation Rolls",
+      "quantity": 90,
+      "unit_id": 1,
+      "price_dkk": 72,
+      "status": "available",
+      "description": "Roof insulation rolls in good condition. Roll width 1.2 m, thickness 100 mm, length 5.0 m per roll, thermal conductivity approx. 0.037 W/mK.",
+      "photo": "/images/from-db-roof-insulation-rolls.png",
+      "condition": "New",
+      "project_id": 3
+    }
+  ],
+  "projects": [
+    {
+      "id": 1,
+      "title": "FROM DB - Downtown Office Deconstruction",
+      "location": "Vesterbrogade 41, 1620 København V, Denmark",
+      "lat": 55.6707,
+      "lng": 12.5533,
+      "photo": "/images/projects/project-1.jpg",
+      "seller_id": 1,
+      "price_dkk": 14500,
+      "creation_date": "2026-03-15T10:00:00Z",
+      "statistics_id": 1
+    },
+    {
+      "id": 2,
+      "title": "FROM DB - Aarhus School Retrofit",
+      "location": "Nørrebrogade 45, 8000 Aarhus C, Denmark",
+      "lat": 56.1568,
+      "lng": 10.2036,
+      "photo": "/images/projects/project-2.jpg",
+      "seller_id": 2,
+      "price_dkk": 11840,
+      "creation_date": "2026-03-12T08:30:00Z",
+      "statistics_id": 2
+    },
+    {
+      "id": 3,
+      "title": "FROM DB - Odense Warehouse Strip-out",
+      "location": "Vestergade 12, 5000 Odense C, Denmark",
+      "lat": 55.3969,
+      "lng": 10.3883,
+      "photo": "/images/projects/project-3.jpg",
+      "seller_id": 3,
+      "price_dkk": 16380,
+      "creation_date": "2026-03-10T14:00:00Z",
+      "statistics_id": 3
+    }
+  ],
+  "reservations": [
+    {
+      "id": 1,
+      "seller_id": 1,
+      "customer_id": 2,
+      "project_id": 1,
+      "material_id": 1,
+      "status": "Pending"
+    }
+  ],
+  "users": [
+    {
+      "id": 1,
+      "first_name": "Seller",
+      "last_name": "One",
+      "phone": "+4511111111",
+      "email": "seller1@gmail.com",
+      "password": "Seller1!pass",
+      "type": "business",
+      "created_at": "2026-03-01T09:00:00Z"
+    },
+    {
+      "id": 2,
+      "first_name": "Customer",
+      "last_name": "One",
+      "phone": "+4522222222",
+      "email": "customer1@gmail.com",
+      "password": "Customer1!pass",
+      "type": "private",
+      "created_at": "2026-03-01T09:30:00Z"
+    },
+    {
+      "id": 3,
+      "first_name": "Seller",
+      "last_name": "Three",
+      "phone": "+4533333333",
+      "email": "seller3@gmail.com",
+      "password": "Seller3!pass",
+      "type": "business",
+      "created_at": "2026-03-01T10:00:00Z"
+    }
+  ],
+  "statistics": [
+    {
+      "id": 1,
+      "reused": 1500,
+      "recycled": 500,
+      "waste": 100,
+      "co2_saved": 2.5
+    },
+    {
+      "id": 2,
+      "reused": 1100,
+      "recycled": 450,
+      "waste": 90,
+      "co2_saved": 1.9
+    },
+    {
+      "id": 3,
+      "reused": 980,
+      "recycled": 380,
+      "waste": 75,
+      "co2_saved": 1.6
+    }
+  ]
+}

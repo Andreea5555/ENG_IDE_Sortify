@@ -12,6 +12,7 @@
       <form @submit.prevent="submitForm">
         <input v-model="email" type="email" placeholder="Email (Gmail only)" required />
         <input v-model="password" type="password" placeholder="Password" required />
+        <div v-if="submitError" class="login-popup__error">{{ submitError }}</div>
         <div class="login-popup__form-actions">
           <button class="login-popup__support" type="button">Need help?</button>
           <button class="login-popup__submit" type="submit">Access account</button>
@@ -31,17 +32,42 @@
 import { ref, defineProps, defineEmits } from 'vue'
 
 const props = defineProps<{ show: boolean }>()
-const emit = defineEmits(['close', 'show-signup'])
+const emit = defineEmits(['close', 'show-signup', 'logged-in'])
 
 const email = ref('')
 const password = ref('')
+const submitError = ref('')
 
 function closePopup() {
   emit('close')
 }
 
-function submitForm() {
-  // Handle login logic here
+async function submitForm() {
+  submitError.value = ''
+
+  const response = await fetch('/api/login', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      email: email.value,
+      password: password.value
+    })
+  })
+
+  const result = await response.json()
+  if (!result.success) {
+    submitError.value = result.message || 'Login failed'
+    return
+  }
+
+  if (import.meta.client) {
+    sessionStorage.setItem('sortifyUser', JSON.stringify(result.user))
+    window.dispatchEvent(new Event('sortify-auth-changed'))
+  }
+
+  emit('logged-in', result.user)
   closePopup()
 }
 
@@ -139,6 +165,15 @@ function onSignUp() {
   border: 1px solid rgba(47, 122, 62, 0.15);
   font-size: 0.85rem;
   color: #1f2a1f;
+}
+.login-popup__error {
+  color: #8b1d1d;
+  background: #ffe6e6;
+  border: 1px solid #f5bdbd;
+  border-radius: 10px;
+  padding: 0.55rem 0.75rem;
+  margin: 0 0 0.75rem;
+  font-size: 0.88rem;
 }
 .login-popup__content input {
   width: 100%;

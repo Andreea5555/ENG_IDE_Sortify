@@ -1,46 +1,259 @@
+<script setup lang="ts">
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import db from '~/../db/db.json'
+
+const units = db.units
+const allProjects = db.projects
+
+const materialName = ref('')
+const unitId = ref<number | null>(null)
+const quantity = ref<number | null>(null)
+const priceDkk = ref<number | null>(null)
+const condition = ref('')
+const projectId = ref<number | null>(null)
+const photo = ref<File | null>(null)
+const description = ref('')
+const feedbackMessage = ref('')
+const route = useRoute()
+const currentUserId = ref<number | null>(null)
+
+const projects = computed(() => {
+  if (!currentUserId.value) {
+    return []
+  }
+
+  return allProjects.filter(project => project.seller_id === currentUserId.value)
+})
+
+function syncSessionUser() {
+  if (!import.meta.client) return
+  const userRaw = sessionStorage.getItem('sortifyUser')
+  if (!userRaw) {
+    currentUserId.value = null
+    return
+  }
+
+  try {
+    const user = JSON.parse(userRaw)
+    currentUserId.value = Number.isFinite(Number(user.id)) ? Number(user.id) : null
+  } catch {
+    currentUserId.value = null
+  }
+}
+
+function applyProjectFromQuery() {
+  const rawProjectId = route.query.projectId
+  const projectIdFromQuery = Number(Array.isArray(rawProjectId) ? rawProjectId[0] : rawProjectId)
+
+  if (!Number.isFinite(projectIdFromQuery)) {
+    return
+  }
+
+  const hasMatchingProject = projects.value.some(project => project.id === projectIdFromQuery)
+  if (hasMatchingProject) {
+    projectId.value = projectIdFromQuery
+  }
+}
+
+onMounted(() => {
+  syncSessionUser()
+  applyProjectFromQuery()
+  if (import.meta.client) {
+    window.addEventListener('sortify-auth-changed', syncSessionUser)
+    window.addEventListener('storage', syncSessionUser)
+  }
+})
+
+onBeforeUnmount(() => {
+  if (!import.meta.client) return
+  window.removeEventListener('sortify-auth-changed', syncSessionUser)
+  window.removeEventListener('storage', syncSessionUser)
+})
+
+watch(projects, () => {
+  if (!projectId.value) {
+    applyProjectFromQuery()
+    return
+  }
+
+  const stillOwned = projects.value.some(project => project.id === projectId.value)
+  if (!stillOwned) {
+    projectId.value = null
+  }
+})
+
+const handleFileUpload = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  if (target.files && target.files[0]) {
+    photo.value = target.files[0]
+  }
+}
+
+const saveMaterial = async () => {
+  if (!import.meta.client) return
+  const userRaw = sessionStorage.getItem('sortifyUser')
+  if (!userRaw) {
+    feedbackMessage.value = 'Please log in before adding materials.'
+    return
+  }
+  const user = JSON.parse(userRaw)
+
+  const ownsProject = projects.value.some(project => project.id === projectId.value)
+  if (!ownsProject) {
+    feedbackMessage.value = 'You can add materials only to your own projects.'
+    return
+  }
+
+  if (!photo.value) {
+    feedbackMessage.value = 'Please select a photo.'
+    return
+  }
+
+  const formData = new FormData()
+  formData.append('name', materialName.value)
+  formData.append('unit_id', unitId.value?.toString() || '')
+  formData.append('quantity', quantity.value?.toString() || '')
+  formData.append('price_dkk', priceDkk.value?.toString() || '')
+  formData.append('condition', condition.value)
+  formData.append('project_id', projectId.value?.toString() || '')
+  formData.append('photo', photo.value)
+  formData.append('description', description.value)
+
+  try {
+    const response = await fetch('/api/add-material', {
+      method: 'POST',
+      headers: {
+        'x-user-id': String(user.id)
+      },
+      body: formData
+    })
+
+    const result = await response.json()
+
+    if (result.success) {
+      feedbackMessage.value = 'Material added successfully!'
+      // Reset form
+      materialName.value = ''
+      unitId.value = null
+      quantity.value = null
+      priceDkk.value = null
+      condition.value = ''
+      projectId.value = null
+      photo.value = null
+      description.value = ''
+    } else {
+      feedbackMessage.value = `Error: ${result.message}`
+    }
+  } catch (error) {
+    console.error('Failed to save material:', error)
+    feedbackMessage.value = 'An unexpected error occurred.'
+  }
+}
+</script>
+
 <template>
   <section class="add-material" role="main">
     <div class="add-material__container">
       <h1>Add a new material</h1>
-      <form class="material-form" aria-label="Add material">
+      <form class="material-form" aria-label="Add material" @submit.prevent="saveMaterial">
         <div class="form-field">
           <label for="material-name">Material Name</label>
-          <input id="material-name" name="material-name" type="text" placeholder="e.g., Reclaimed bricks" />
+          <input
+            id="material-name"
+            v-model="materialName"
+            name="material-name"
+            type="text"
+            placeholder="e.g., Reclaimed bricks"
+            required
+          />
         </div>
 
         <div class="form-field">
-          <label for="material-category">Category</label>
-          <select id="material-category" name="material-category">
+          <label for="material-unit">Unit</label>
+          <select id="material-unit" v-model="unitId" name="material-unit" required>
             <option value="" disabled selected>Select unit</option>
-            <option value="kg">Kilograms (kg)</option>
-            <option value="liters">Liters (L)</option>
+            <option v-for="unit in units" :key="unit.id" :value="unit.id">
+              {{ unit.value }}
+            </option>
           </select>
         </div>
 
         <div class="form-field">
           <label for="material-quantity">Quantity</label>
-          <input id="material-quantity" name="material-quantity" type="number" min="0" step="1" placeholder="0" />
+          <input
+            id="material-quantity"
+            v-model="quantity"
+            name="material-quantity"
+            type="number"
+            min="0"
+            step="1"
+            placeholder="0"
+            required
+          />
+        </div>
+
+        <div class="form-field">
+          <label for="material-price">Price (DKK per unit)</label>
+          <input
+            id="material-price"
+            v-model="priceDkk"
+            name="material-price"
+            type="number"
+            min="0"
+            step="1"
+            placeholder="0"
+            required
+          />
         </div>
 
         <div class="form-field">
           <label for="material-condition">Condition</label>
-          <select id="material-condition" name="material-condition">
+          <select id="material-condition" v-model="condition" name="material-condition" required>
             <option value="" disabled selected>Select condition</option>
-            <option value="bad">Bad</option>
-            <option value="fairly-good">Fairly good</option>
-            <option value="good">Good</option>
+            <option value="Used - Good">Used - Good</option>
+            <option value="Used - Excellent">Used - Excellent</option>
+            <option value="New">New</option>
+          </select>
+        </div>
+
+        <div class="form-field">
+          <label for="material-project">Project</label>
+          <select id="material-project" v-model="projectId" name="material-project" required>
+            <option value="" disabled selected>Select project</option>
+            <option v-for="project in projects" :key="project.id" :value="project.id">
+              {{ project.title }}
+            </option>
           </select>
         </div>
 
         <div class="form-field form-field--full">
+          <label for="material-description">Description (include sizes/specs)</label>
+          <textarea
+            id="material-description"
+            v-model="description"
+            name="material-description"
+            rows="4"
+            placeholder="Describe dimensions and specs, e.g. 240x115x75 mm, length 2.4 m, thickness 12 mm..."
+            required
+          ></textarea>
+        </div>
+
+        <div class="form-field form-field--full">
           <label for="material-photo">Upload Photo</label>
-          <input id="material-photo" name="material-photo" type="file" accept="image/*" />
+          <input
+            id="material-photo"
+            name="material-photo"
+            type="file"
+            accept="image/*"
+            @change="handleFileUpload"
+          />
         </div>
 
         <div class="form-actions">
-          <button type="button">Save</button>
+          <button type="submit">Save</button>
         </div>
       </form>
+      <p v-if="feedbackMessage" class="feedback-message">{{ feedbackMessage }}</p>
     </div>
   </section>
 </template>
