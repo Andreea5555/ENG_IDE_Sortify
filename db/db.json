@@ -89,53 +89,6 @@
       "photo": "/images/from-db-roof-insulation-rolls.png",
       "condition": "New",
       "project_id": 3
-    },
-    {
-      "id": 7,
-      "name": "test",
-      "unit_id": 2,
-      "quantity": 2,
-      "price_dkk": 100,
-      "status": "reserved",
-      "condition": "Used - Good",
-      "photo": "/images/5c8b1073-7ebc-47a4-a067-bb12e52bd44e-1b4858fbd24046a81cace5ee18d19c868262b91f.jpg",
-      "description": "test",
-      "project_id": 4
-    },
-    {
-      "id": 8,
-      "name": "vgvg",
-      "unit_id": 2,
-      "quantity": 6,
-      "price_dkk": 45,
-      "condition": "Used - Good",
-      "photo": "/images/d57ea216-4fdc-4d72-8a11-9a07d04daed1-1b4858fbd24046a81cace5ee18d19c868262b91f.jpg",
-      "description": "jhjk",
-      "project_id": 5
-    },
-    {
-      "id": 9,
-      "name": "cucu",
-      "unit_id": 1,
-      "quantity": 3,
-      "price_dkk": 210,
-      "status": "available",
-      "condition": "Used - Good",
-      "photo": "/images/09e7fd3b-4112-4657-a1d6-71d267472a57-biggie_task2.png",
-      "description": "cucu",
-      "project_id": 6
-    },
-    {
-      "id": 10,
-      "name": "stuffy",
-      "unit_id": 2,
-      "quantity": 5,
-      "price_dkk": 160,
-      "status": "available",
-      "condition": "Used - Excellent",
-      "photo": "/images/913d4e1f-3883-4767-b2e7-999904496496-Biggie.png",
-      "description": "a lot of stuffy",
-      "project_id": 7
     }
   ],
   "projects": [
@@ -174,48 +127,6 @@
       "price_dkk": 16380,
       "creation_date": "2026-03-10T14:00:00Z",
       "statistics_id": 3
-    },
-    {
-      "id": 4,
-      "title": "test",
-      "location": "Boulevarden 14, 9000 Aalborg, Denmark",
-      "lat": 57.0482,
-      "lng": 9.9217,
-      "photo": "/images/projects/project-4.jpg",
-      "seller_id": 1,
-      "price_dkk": 200,
-      "creation_date": "2026-03-16T16:07:39.850Z",
-      "statistics_id": 4
-    },
-    {
-      "id": 5,
-      "title": "testtt",
-      "location": "dfsdsf",
-      "photo": "/images/projects/project-1.jpg",
-      "seller_id": 1,
-      "price_dkk": 270,
-      "creation_date": "2026-03-16T16:17:09.539Z",
-      "statistics_id": 5
-    },
-    {
-      "id": 6,
-      "title": "gkgkgj",
-      "location": "Brasov",
-      "photo": "/images/projects/project-1.jpg",
-      "seller_id": 3,
-      "price_dkk": 630,
-      "creation_date": "2026-03-25T07:40:55.261Z",
-      "statistics_id": 6
-    },
-    {
-      "id": 7,
-      "title": "stuff",
-      "location": "Horsens, Denmark",
-      "photo": "/images/projects/project-1.jpg",
-      "seller_id": 1,
-      "price_dkk": 800,
-      "creation_date": "2026-04-08T08:10:07.434Z",
-      "statistics_id": 7
     }
   ],
   "reservations": [
@@ -225,22 +136,6 @@
       "customer_id": 2,
       "project_id": 1,
       "material_id": 1,
-      "status": "Pending"
-    },
-    {
-      "id": 2,
-      "seller_id": 1,
-      "customer_id": 2,
-      "project_id": 4,
-      "material_id": 7,
-      "status": "Pending"
-    },
-    {
-      "id": 3,
-      "seller_id": 1,
-      "customer_id": 1,
-      "project_id": 4,
-      "material_id": 7,
       "status": "Pending"
     }
   ],
@@ -297,34 +192,6 @@
       "recycled": 380,
       "waste": 75,
       "co2_saved": 1.6
-    },
-    {
-      "id": 4,
-      "reused": 0,
-      "recycled": 0,
-      "waste": 0,
-      "co2_saved": 0
-    },
-    {
-      "id": 5,
-      "reused": 0,
-      "recycled": 0,
-      "waste": 0,
-      "co2_saved": 0
-    },
-    {
-      "id": 6,
-      "reused": 0,
-      "recycled": 0,
-      "waste": 0,
-      "co2_saved": 0
-    },
-    {
-      "id": 7,
-      "reused": 0,
-      "recycled": 0,
-      "waste": 0,
-      "co2_saved": 0
     }
   ]
 }
